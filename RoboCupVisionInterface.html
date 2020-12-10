@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<link rel="SHORTCUT ICON" href="./picture/icon.png">
+	<link rel="SHORTCUT ICON" href="picture/icon.png">
 
 	<!-- CSS References -->
 	<link rel="stylesheet" type="text/css" rel="stylesheet" href="./css/style.css">
@@ -14,7 +14,7 @@
 	<script type="text/javascript" type="text/javascript">
 
 		var ros = new ROSLIB.Ros({
-			url: 'ws://172.17.121.10:9090'
+			url: 'ws://localhost:9090'
 		});
 		ros.on('connection', function () {
 			console.log('Connection made!');
@@ -35,7 +35,6 @@
 		var ColorFormcmd = new ROSLIB.Message({
 			BuildingModel: false
 		});
-
 		var HSVValue_Topic = new ROSLIB.Topic({
 			ros: ros,
 			name: '/HSVValue_Topic',
@@ -49,7 +48,6 @@
 			VMax: 100,
 			VMin: 0
 		});
-
 		var Head_Topic = new ROSLIB.Topic({
 			ros: ros,
 			name: '/package/HeadMotor',
@@ -61,39 +59,6 @@
 			Speed: 1
 		});
 
-		var Camera = new ROSLIB.Topic({
-			ros: ros,
-			name: '/Camera_Topic',
-			messageType: 'tku_msgs/camera'
-		});
-		var CameraMsg = new ROSLIB.Message({
-			brightness: 0.5,
-			contrast: 0.5,
-			saturation: 0.5,
-			white_balance: 0.5,
-			auto_white_balance: false,
-			auto_exposure: false,
-			auto_Backlight_Compensation: false
-		});
-
-		var WebStart_Topic = new ROSLIB.Topic({
-			ros: ros,
-			name: '/web/start',
-			messageType: 'std_msgs/Bool'
-		});
-		var WebStartcmd = new ROSLIB.Message({
-			data: false
-		});
-
-		var CameraId_Topic = new ROSLIB.Topic({
-			ros: ros,
-			name: '/CameraId',
-			messageType: 'std_msgs/Int16'
-		});
-		var CameraId_msg = new ROSLIB.Message({
-			data: 0
-		});
-
 		var HSVClient = new ROSLIB.Service({
 			ros: ros,
 			name: '/LoadHSVInfo',
@@ -102,7 +67,6 @@
 		var HSVreqrest = new ROSLIB.ServiceRequest({
 			ColorLabel: 1
 		});
-
 		var BuildClient = new ROSLIB.Service({
 			ros: ros,
 			name: '/BuildModel',
@@ -111,7 +75,6 @@
 		var Buildreqrest = new ROSLIB.ServiceRequest({
 			Build: true
 		});
-
 		var SaveHSVClient = new ROSLIB.Service({
 			ros: ros,
 			name: '/SaveHSV',
@@ -126,9 +89,56 @@
 			name: '/CameraInfo',
 			serviceType: 'tku_msgs/CameraInfo'
 		});
-		var LoadCamerareqrest = new ROSLIB.ServiceRequest({
-			Load: true
+		var Camera = new ROSLIB.Topic({
+			ros: ros,
+			name: '/Camera_Topic',
+			messageType: 'tku_msgs/camera'
 		});
+		var CameraMsg = new ROSLIB.Message({
+			brightness: 0.5,
+			contrast: 0.5,
+			saturation: 0.5,
+			white_balance: 0.5,
+			auto_white_balance: false,
+			auto_exposure: false,
+			auto_white_balance: false
+		});
+
+		var WebStart_Topic = new ROSLIB.Topic({
+			ros: ros,
+			name: '/web/start',
+			messageType: 'std_msgs/Bool'
+		});
+		var WebStartcmd = new ROSLIB.Message({
+			data: false
+		});
+		var CameraId_Topic = new ROSLIB.Topic({
+			ros: ros,
+			name: '/CameraId',
+			messageType: 'std_msgs/Int16'
+		});
+
+		var BGRValue_Topic = new ROSLIB.Topic({
+			ros: ros,
+			name: '/BGRValue_Topic',
+			messageType: 'tku_msgs/BGRValue'
+		});
+		
+		var BGRClient = new ROSLIB.Service({
+			ros: ros,
+			name: '/LoadBGRInfo',
+			serviceType: 'tku_msgs/BGRInfo'
+		});
+		
+		var thresholdValuecmd = new ROSLIB.Message({
+			BValue: 220,
+			GValue: 220,
+			RValue: 150,
+		});
+
+		var Bluevalue = 0;
+		var Greenvalue = 0;
+		var Redvalue = 0;
 
 		//-----
 		var B_ColorModelForm_Flag = true;
@@ -146,11 +156,50 @@
 		var CamBrightnessValue = 0;
 		var CamContrastValue = 0;
 		var CamSaturationValue = 0;
+		var CamSharpnessValue = 0;
 		var CamWhiteBalanceValue = 0;
-		var CamAuto_WhiteBalanceValue = false;
+		var CamExposureValue = 0;
 		var CamAuto_ExposureValue = false;
+		var CamAuto_WhiteBalanceValue = false;
 		var CamAuto_BacklightCompensation = false;
 
+		function showBlueValue(newValue) {
+			document.getElementById("BlueValue").value = newValue;
+			Bluevalue = newValue;
+			thresholdValuecmd.BValue = Number(Bluevalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function rangeBlueValue(newValue) {
+			document.getElementById("Blue").value = newValue;
+			Bluevalue = newValue;
+			thresholdValuecmd.BValue = Number(Bluevalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function showGreenValue(newValue) {
+			document.getElementById("GreenValue").value = newValue;
+			Greenvalue = newValue;
+			thresholdValuecmd.GValue = Number(Greenvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function rangeGreenValue(newValue) {
+			document.getElementById("Green").value = newValue;
+			Greenvalue = newValue;
+			thresholdValuecmd.GValue = Number(Greenvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function showRedValue(newValue) {
+			document.getElementById("RedValue").value = newValue;
+			Redvalue = newValue;
+			thresholdValuecmd.RValue = Number(Redvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function rangeRedValue(newValue) {
+			document.getElementById("Red").value = newValue;
+			Redvalue = newValue;
+			thresholdValuecmd.RValue = Number(Redvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		
 		function ResetColorModelFunction() {
 			document.getElementById("HminRange").value = 0;
 			document.getElementById("SminRange").value = 0;
@@ -230,7 +279,7 @@
 		function ColorModelForm() {
 			if (B_ColorModelForm_Flag) {
 				document.getElementById("HSV_Range").style.display = "inline";
-				document.getElementById("B_ColorModelForm").value = "Close Model Form";
+				document.getElementById("B_ColorModelForm").value = "Colse Model Form";
 				document.getElementById("container").style.height = "710px";
 				document.getElementById("select").style.height = "400px";
 				changeColorLabel(document.getElementById("ColorLabel").value);
@@ -243,7 +292,8 @@
 				if (B_SetupCamera_Flag == false) {
 					document.getElementById("container").style.height = "810px";
 					document.getElementById("select").style.height = "400px";
-				} else {
+				}
+				else {
 					document.getElementById("container").style.height = "500px";
 					document.getElementById("select").style.height = "180px";
 				}
@@ -253,15 +303,35 @@
 			}
 		}
 		function CameraSetUp() {
+			/*window.open("cameraSetup.html","cameraSetup",
+	  		"width=400px height=400px location=1 status,toolbar,scrollbars=0");*/
 			if (B_SetupCamera_Flag) {
+				document.getElementById("Camera").style.display = "inline";
+				document.getElementById("container").style.height = "710px";
+				document.getElementById("select").style.height = "400px";
+				B_SetupCamera_Flag = false;
+				var LoadCamerareqrest = new ROSLIB.ServiceRequest({
+					Load: true
+				});
 				CameraInfoClient.callService(LoadCamerareqrest, function (LoadCameraresult) {
 					CamBrightnessValue = LoadCameraresult.brightness;
 					CamContrastValue = LoadCameraresult.contrast;
 					CamSaturationValue = LoadCameraresult.saturation;
+					CamSharpnessValue = LoadCameraresult.sharpness;
 					CamWhiteBalanceValue = LoadCameraresult.white_balance;
-					CamAuto_WhiteBalanceValue = LoadCameraresult.auto_white_balance;
+					CamExposureValue = LoadCameraresult.exposure;
 					CamAuto_ExposureValue = LoadCameraresult.auto_exposure;
+					CamAuto_WhiteBalanceValue = LoadCameraresult.auto_white_balance;
 					CamAuto_BacklightCompensationValue = LoadCameraresult.auto_Backlight_Compensation;
+
+					document.getElementById("AutoWhitBlance").checked = CamAuto_WhiteBalanceValue;
+					CameraMsg.auto_white_balance = document.getElementById("AutoWhitBlance").checked = CamAuto_WhiteBalanceValue;
+
+					document.getElementById("AutoExposure").checked = CamAuto_ExposureValue;
+					CameraMsg.auto_exposure = document.getElementById("AutoExposure").checked = CamAuto_ExposureValue;
+
+					document.getElementById("AutoBacklightCompensation").checked = CamAuto_BacklightCompensationValue;
+					CameraMsg.auto_Backlight_Compensation = document.getElementById("AutoBacklightCompensation").checked = CamAuto_BacklightCompensationValue;
 
 					document.getElementById("CamBrightness").value = CamBrightnessValue;
 					document.getElementById("CamBrightnessValue").value = CamBrightnessValue;
@@ -271,29 +341,23 @@
 					document.getElementById("CamSaturationValue").value = CamSaturationValue;
 					document.getElementById("CamWhiteBalance").value = CamWhiteBalanceValue;
 					document.getElementById("CamWhiteBalanceValue").value = CamWhiteBalanceValue;
-					document.getElementById("AutoWhitBlance").checked = CamAuto_WhiteBalanceValue;
-					document.getElementById("AutoExposure").checked = CamAuto_ExposureValue;
-					document.getElementById("AutoBacklightCompensation").checked = CamAuto_BacklightCompensationValue;
 
+					CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+					CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+					CameraMsg.auto_exposure = CamAuto_ExposureValue;
 					CameraMsg.brightness = Number(CamBrightnessValue);
 					CameraMsg.contrast = Number(CamContrastValue);
 					CameraMsg.saturation = Number(CamSaturationValue);
 					CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-					CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-					CameraMsg.auto_exposure = CamAuto_ExposureValue;
-					CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
 					Camera.publish(CameraMsg);
 				});
-				document.getElementById("Camera").style.display = "inline";
-				document.getElementById("container").style.height = "710px";
-				document.getElementById("select").style.height = "400px";
-				B_SetupCamera_Flag = false;
 			} else {
 				document.getElementById("Camera").style.display = "none";
 				if (B_ColorModelForm_Flag == false) {
 					document.getElementById("container").style.height = "810px";
 					document.getElementById("select").style.height = "400px";
-				} else {
+				}
+				else {
 					document.getElementById("container").style.height = "500px";
 					document.getElementById("select").style.height = "180px";
 				}
@@ -304,10 +368,12 @@
 		{
 			if(B_Measure_Flag)
 			{
-				document.getElementById("object_image").src = "http://172.17.121.10:8080/stream?topic=/vision/measure_image";
+				document.getElementById("object_image").src = "http://localhost:8080/stream?topic=/vision/measure_image";
 				B_Measure_Flag = false;
-			} else {
-				document.getElementById("object_image").src = "http://172.17.121.10:8080/stream?topic=/vision/object_image";
+			}
+			else
+			{
+				document.getElementById("object_image").src = "http://localhost:8080/stream?topic=/vision/object_image";
 				B_Measure_Flag = true;
 			}
 		}
@@ -322,8 +388,7 @@
 				document.getElementById("SmaxRange").value = HSVresult.Smax;
 				document.getElementById("BmaxRange").value = HSVresult.Vmax;
 				document.getElementById("HminValue").value = HSVresult.Hmin;
-				document.getElementById("SminValue").value = HSVresult.Smin;
-				document.getElementById("BminValue").value = HSVresult.Vmin;
+				document.getElementByI12493500_996468827090782_2398005032261334066_od("BminValue").value = HSVresult.Vmin;
 				document.getElementById("HmaxValue").value = HSVresult.Hmax;
 				document.getElementById("SmaxValue").value = HSVresult.Smax;
 				document.getElementById("BmaxValue").value = HSVresult.Vmax;
@@ -477,146 +542,152 @@
 		function showCamBrightness(newValue) {
 			document.getElementById("CamBrightnessValue").value = newValue;
 			CamBrightnessValue = newValue;
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
 			Camera.publish(CameraMsg);
 
 		}
 		function rangeCamBrightnessValue(newValue) {
 			document.getElementById("CamBrightness").value = newValue;
 			CamBrightnessValue = newValue;
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
 			Camera.publish(CameraMsg);
 		}
 		function showCamContrast(newValue) {
 			document.getElementById("CamContrastValue").value = newValue;
 			CamContrastValue = newValue;
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
 			Camera.publish(CameraMsg);
 
 		}
 		function rangeCamContrastValue(newValue) {
 			document.getElementById("CamContrast").value = newValue;
 			CamContrastValue = newValue;
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
 			Camera.publish(CameraMsg);
 		}
 		function showCamSaturation(newValue) {
 			document.getElementById("CamSaturationValue").value = newValue;
 			CamSaturationValue = newValue;
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
 			Camera.publish(CameraMsg);
 
 		}
 		function rangeCamSaturationValue(newValue) {
 			document.getElementById("CamSaturation").value = newValue;
 			CamSaturationValue = newValue;
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
 			Camera.publish(CameraMsg);
 		}
 		function showCamWhiteBalance(newValue) {
 			document.getElementById("CamWhiteBalanceValue").value = newValue;
 			CamWhiteBalanceValue = newValue;
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
 			Camera.publish(CameraMsg);
 
 		}
 		function rangeCamWhiteBalanceValue(newValue) {
 			document.getElementById("CamWhiteBalance").value = newValue;
 			CamWhiteBalanceValue = newValue;
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
 			Camera.publish(CameraMsg);
 		}
 		function changeAutoWhitBlance() {
 			if (document.getElementById("AutoWhitBlance").checked) {
 				CamAuto_WhiteBalanceValue = true;
-			} else {
+			}
+			else {
 				CamAuto_WhiteBalanceValue = false;
 			}
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
+
 			Camera.publish(CameraMsg);
 		}
 		function changeAutoExposure() {
 			if (document.getElementById("AutoExposure").checked) {
 				CamAuto_ExposureValue = true;
-			} else {
+			}
+			else {
 				CamAuto_ExposureValue = false;
 			}
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
+
 			Camera.publish(CameraMsg);
 		}
 		function changeAutoBacklightCompensation() {
 			if (document.getElementById("AutoBacklightCompensation").checked) {
 				CamAuto_BacklightCompensationValue = true;
-			} else {
+			}
+			else {
 				CamAuto_BacklightCompensationValue = false;
 			}
+			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue
+			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
+			CameraMsg.auto_exposure = CamAuto_ExposureValue;
 			CameraMsg.brightness = Number(CamBrightnessValue);
 			CameraMsg.contrast = Number(CamContrastValue);
 			CameraMsg.saturation = Number(CamSaturationValue);
 			CameraMsg.white_balance = Number(CamWhiteBalanceValue);
-			CameraMsg.auto_white_balance = CamAuto_WhiteBalanceValue;
-			CameraMsg.auto_exposure = CamAuto_ExposureValue;
-			CameraMsg.auto_Backlight_Compensation = CamAuto_BacklightCompensationValue;
+
 			Camera.publish(CameraMsg);
 		}
 		function WebStart() {
@@ -631,6 +702,7 @@
 				B_Start_Flag = true;
 				WebStartcmd.data = false;
 				WebStart_Topic.publish(WebStartcmd);
+
 			}
 		}
 		function showHorizontalPosition(newValue) {
@@ -695,28 +767,54 @@
 			Head_Topic.publish(HeadPackagecmd);
 		}
 		function changeCamera() {
+			var CameraId_msg = new ROSLIB.Message({
+				data: 0
+			});
 			CameraId_msg.data = Number(document.getElementById("Camera_Select").value);
 			CameraId_Topic.publish(CameraId_msg);
 		}
 
+
 	</script>
 	<style type="text/css">
 		body {
-			width: 1520px;
+			width: 1820px;
 			height: 1000px;
 			overflow: visible;
-			background-image: url(./picture/Background.jpg);
+			background-image: url(picture/Background.jpg);
 			background-size: cover;
 			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 		}
-
 
 		#container {
 			background-color: #333;
 			border: 2px black solid;
 			width: 800px;
 			height: 500px;
-			margin: 20px auto;
+			margin: 20px 0px 0px 50px;
+			float: left;
+			overflow: visible;
+			color: white;
+		}
+
+		#vision1 {
+			background-color: #333;
+			border: 2px black solid;
+			width: 800px;
+			height: 800px;
+			margin: 20px 50px 0px 50px;
+			float: right;
+			overflow: visible;
+			color: white;
+		}
+
+		#vision2 {
+			background-color: #333;
+			border: 2px black solid;
+			width: 1600px;
+			height: 800px;
+			margin: 20px 50px 0px 50px;
+			float: left;
 			overflow: visible;
 			color: white;
 		}
@@ -735,7 +833,7 @@
 			height: 240px;
 			border: 1px #FFF solid;
 			margin: 25px 32px 24px 32px;
-			float: right;
+			float: left;
 			display: inline;
 		}
 
@@ -751,7 +849,7 @@
 		#select {
 			width: 320px;
 			height: 180px;
-			margin: 10px 32px 0px 32px;
+			margin: 5px 32px 0px 27px;
 			float: left;
 			display: inline;
 		}
@@ -790,6 +888,25 @@
 		#B_Start {
 			width: 50px;
 		}
+
+		#div_field_image {
+			width: 1100px;
+			height: 700px;
+			border: 1px #FFF solid;
+			margin: 20px 80px 24px 32px;
+			float: right;
+			display: inline;
+		}
+
+		#BGR_Range {
+			width: 320px;
+			height: 160px;
+			border: 1px #FFF solid;
+			margin: 25px 32px 25px 32px;
+			float: left;
+			display: inline;
+		}
+
 	</style>
 	<title>HumanoidInterface</title>
 </head>
@@ -798,7 +915,8 @@
 	<!-- NAV BAR -->
 	<ul>
 		<li><a target="_blank" class="navbarright" href="WalkingInterface.html">Walking Interface</a></li>
-		<li><a target="_blank" style="text-decoration: underline;" class="navbarright" href="ImageProcessInterface.html">Humanoid Interface</a></li>
+		<li><a target="_blank" style="text-decoration: underline;" class="navbarright" href="ImageProcessInterface.html">Humanoid
+				Interface</a></li>
 		<li><a target="_blank" class="navbarright" href="MotionControlInterface.html">Motion Controller</a></li>
 		<li><a target="_blank" class="navbarright" href="index.html">Home</a></li>
 		<li class="logo">
@@ -813,27 +931,13 @@
 
 		<div id="head" align="center">
 			<h1 id="header">Humanoid Interface</h1>
-			<table>
-				<tr>
-					<td>
-						<select style="height:25px; margin-right: 5px;" id="Camera_Select">
-							<option value="0">dev0</option>
-							<option value="1">dev1</option>
-							<option value="2">dev2</option>
-						</select>
-					</td>
-					<td>
-						<button type="button" style="width:140px ;height:25px;" id="changeCameraButton" onclick="changeCamera()">Change Camera</button>
-					</td>
-				</tr>
-			</table>
 		</div>
-		<div id="container" align="center">
+		<div id="container" align="left">
 			<div id="div_object_image">
-				<img id="object_image" style="-webkit-user-select: none; display:inline;" src="http://172.17.121.10:8080/stream?topic=/vision/object_image">
+				<img id="object_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/object_image">
 			</div>
 			<div id="div_monitor_image">
-				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://172.17.121.10:8080/stream?topic=/vision/monitor_image">
+				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/monitor_image">
 
 			</div>
 
@@ -868,7 +972,7 @@
 						<td>
 							<p class="text">Hue:</p>
 						</td>
-						<td><img src="./picture/HSVS255.jpg" width="230" height="20">
+						<td><img src="picture/HSVS255.jpg" width="230" height="20">
 						</td>
 					</tr>
 					<tr>
@@ -926,13 +1030,16 @@
 								<input style="margin-left: 1px; height:25px;width:38px;padding-left:3px" type="button" class="Button" id="B_Start" value="Start" onClick="WebStart()"></input>
 							</td>
 							<td>
-								<input style="margin-left: 1px; height:25px;width:115px;padding-left:2px" type="button" class="Button" id="B_ColorModelForm" value="Show Model Form" onClick="ColorModelForm()"></input>
+								<input style="margin-left: 1px; height:25px;width:115px;padding-left:2px" type="button" class="Button" id="B_ColorModelForm" value="Show Model Form"
+								 onClick="ColorModelForm()"></input>
 							</td>
 							<td>
-								<input style="margin-left: 1px; height:25px;width:93px;padding-left:2px" type="button" class="Button" id="B_Camera" value="Camera Setup" onClick="CameraSetUp()"></input>
+								<input style="margin-left: 1px; height:25px;width:93px;padding-left:2px" type="button" class="Button" id="B_Camera" value="Camera Setup"
+								 onClick="CameraSetUp()"></input>
 							</td>
 							<td>
-								<input style="margin-left: 1px; height:25px;width:60px;padding-left:3px" type="button" class="Button" id="B_Measure" value="Measure" onClick="ShowMeasureImage()"></input>
+								<input style="margin-left: 1px; height:25px;width:60px;padding-left:3px" type="button" class="Button" id="B_Measure"
+									value="Measure" onClick="ShowMeasureImage()"></input>
 							</td>
 						</tr>
 					</table>
@@ -950,7 +1057,8 @@
 							<td rowspan="2"><input type="text" class="ValueText" id="HorizontalSpeedValue" size="12" value="1" onchange="rangeHorizontalSpeed(this.value)" /></td>
 						</tr>
 						<tr>
-							<td><input class="Range" id="HorizontalSpeedRange" name="HorizontalSpeedRange" type="range" min="1" max="9999" value="1" oninput="showHorizontalSpeed(this.value)"/></td>
+							<td><input class="Range" id="HorizontalSpeedRange" name="HorizontalSpeedRange" type="range" min="1" max="9999"
+								 value="1" oninput="showHorizontalSpeed(this.value)"/></td>
 						</tr>
 						<tr>
 							<td colspan="3">
@@ -959,11 +1067,13 @@
 						</tr>
 						<tr>
 							<td rowspan="2"><input type="text" class="ValueText" id="VerticalPositionValue" size="12" value="2048" onchange="rangeVerticalPosition(this.value)" /></td>
-							<td><input class="Range" id="VerticalPositionRange" name="VerticalPositionRange" type="range" min="0" max="4095" value="2048" oninput="showVerticalPosition(this.value)" /></td>
+							<td><input class="Range" id="VerticalPositionRange" name="VerticalPositionRange" type="range" min="0" max="4095"
+								 value="2048" oninput="showVerticalPosition(this.value)" /></td>
 							<td rowspan="2"><input type="text" class="ValueText" id="VerticalSpeedValue" size="12" value="1" onchange="rangeVerticalSpeed(this.value)" /></td>
 						</tr>
 						<tr>
-							<td><input class="Range" id="VerticalSpeedRange" name="VerticalSpeedRange" type="range" min="1" max="9999" value="1" oninput="showVerticalSpeed(this.value)" /></td>
+							<td><input class="Range" id="VerticalSpeedRange" name="VerticalSpeedRange" type="range" min="1" max="9999" value="1"
+								 oninput="showVerticalSpeed(this.value)" /></td>
 						</tr>
 					</table>
 				</div>
@@ -1023,10 +1133,69 @@
 					</table>
 				</div>
 			</div>
-
 		</div>
-
 	</form>
+	<form>
+		<div id="vision1" align="right">
+			<div id="div_object_image">
+				<img id="object_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/blur_image">
+			</div>
+			<div id="div_monitor_image">
+				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/Gamma_image">
+			</div>
+			<div id="div_monitor_image">
+				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/nobackgroud_image">
+			</div>
+			<div id="div_monitor_image">
+				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/morphologyEx_image">
+			</div>
+			<div id="BGR_Range">
+				<table width="320">
+					<tr>
+						<td colspan="3">
+							<p class="text">Blue threshold:</p>
+						</td>
+					</tr>
+					<tr>
+						<td width="25"></td>
+						<td><input class="Range" id="Blue" name="Blue" type="range" min="0" max="255" value="220" oninput="showBlueValue(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="BlueValue" size="12" value="220" onchange="rangeBlueValue(this.value)" /></td>
+					</tr>
+					<tr>
+						<td colspan="3">
+							<p class="text">Green threshold:</p>
+						</td>
+					</tr>
+					<tr>
+						<td width="25"></td>
+						<td><input class="Range" id="Green" name="Green" type="range" min="0" max="255" value="220" oninput="showGreenValue(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="GreenValue" size="12" value="220" onchange="rangeGreenValue(this.value)" /></td>
+					</tr>
+					<tr>
+						<td colspan="3">
+							<p class="text">Red threshold:</p>
+						</td>
+					</tr>
+					<tr>
+						<td width="25"></td>
+						<td><input class="Range" id="Red" name="Red" type="range" min="0" max="255" value="150" oninput="showRedValue(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="RedValue" size="12" value="150" onchange="rangeRedValue(this.value)" /></td>
+					</tr>
+				</table>
+			</div>
+			
+		</div>					
+	</form>
+	<form>
+		<div id="vision2" align="left">
+			<div id="div_field_image">
+				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/localization/DrawRobotPos">
+			</div>
+			<div id="div_field_image">
+				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/localization/ParticlePoint">
+			</div>
+		</div>
+	<form>
 </body>
 
 </html>
