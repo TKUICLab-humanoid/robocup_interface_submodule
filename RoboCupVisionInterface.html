@@ -119,6 +119,8 @@
 		var B_ImageGamma_Flag = true;
 		var B_Nonbackgroud_image_Flag = true;
 		var B_Edge_Flag = true;
+		var B_Orihough_Flag = true;
+		var B_Merhough_Flag = true;
 		var B_Debug_Flag =true;
 
 		var Bluevalue = 0;
@@ -126,8 +128,6 @@
 		var Redvalue = 0;
 		
 		var hough_threshold = 100;
-		var hough_minLineLength = 60;
-		var hough_maxLineGap = 40;
 
 		var CamBrightnessValue = 0;
 		var CamContrastValue = 0;
@@ -318,15 +318,17 @@
 			}
 		}
 		
-		function ShowBlurImage()
+		function ShowMaskImage()
 		{
 			if(B_Blur_Flag)
 			{
 				document.getElementById("div_mask_image").style.display = "inline";
+				document.getElementById("vision1").style.height = "900px";
 				B_Blur_Flag = false;
 			}else
 			{
 				document.getElementById("div_mask_image").style.display = "none";
+				document.getElementById("vision1").style.height = "900px";
 				B_Blur_Flag = true;
 			}
 		}
@@ -336,41 +338,27 @@
 			if(B_ImageGamma_Flag)
 			{
 				document.getElementById("div_imagegamma_image").style.display = "inline";
+				document.getElementById("vision1").style.height = "900px";
 				B_ImageGamma_Flag = false;
 			}else
 			{
 				document.getElementById("div_imagegamma_image").style.display = "none";
+				document.getElementById("vision1").style.height = "900px";
 				B_ImageGamma_Flag = true;
 			}
 		}
-
-		function ShowNonbgImage()
+		function ShowMerhoughImage()
 		{
-			if(B_Nonbackgroud_image_Flag)
+			if(B_Merhough_Flag)
 			{
-				document.getElementById("div_nonbackground_image").style.display = "inline";
-				document.getElementById("vision1").style.height = "600px";
-				B_Nonbackgroud_image_Flag = false;
+				document.getElementById("div_merhough_image").style.display = "inline";
+				document.getElementById("vision1").style.height = "900px";
+				B_Merhough_Flag = false;
 			}else
 			{
-				document.getElementById("div_nonbackground_image").style.display = "none";
-				document.getElementById("vision1").style.height = "300px";
-				B_Nonbackgroud_image_Flag = true;
-			}
-		}
-
-		function ShowEdgeImage()
-		{
-			if(B_Edge_Flag)
-			{
-				document.getElementById("div_edge_image").style.display = "inline";
-				document.getElementById("vision1").style.height = "600px";
-				B_Edge_Flag = false;
-			}else
-			{
-				document.getElementById("div_edge_image").style.display = "none";
-				document.getElementById("vision1").style.height = "300px";
-				B_Edge_Flag = true;
+				document.getElementById("div_merhough_image").style.display = "none";
+				document.getElementById("vision1").style.height = "900px";
+				B_Merhough_Flag = true;
 			}
 		}
 		function ShowMeasureImage()
@@ -653,19 +641,8 @@
 			display: none;
 		}
 
-		#vision2 {
-			background-color: #333;
-			border: 2px black solid;
-			width: 1600px;
-			height: 800px;
-			margin: 20px 50px 0px 50px;
-			float: left;
-			overflow: visible;
-			color: white;
-		}
-
 		#div_mask_image {
-			width: 320px;
+			width: 640px;
 			height: 240px;
 			border: 1px #FFF solid;
 			margin: 25px 32px 24px 32px;
@@ -674,7 +651,7 @@
 		}
 
 		#div_imagegamma_image {
-			width: 320px;
+			width: 640px;
 			height: 240px;
 			border: 1px #FFF solid;
 			margin: 25px 32px 24px 32px;
@@ -682,17 +659,8 @@
 			display: none;
 		}
 
-		#div_nonbackground_image {
-			width: 320px;
-			height: 240px;
-			border: 1px #FFF solid;
-			margin: 25px 32px 24px 32px;
-			float: left;
-			display: none;
-		}
-
-		#div_edge_image {
-			width: 320px;
+		#div_merhough_image {
+			width: 640px;
 			height: 240px;
 			border: 1px #FFF solid;
 			margin: 25px 32px 24px 32px;
@@ -760,15 +728,6 @@
 
 		#B_Start {
 			width: 50px;
-		}
-
-		#div_field_image {
-			width: 1100px;
-			height: 700px;
-			border: 1px #FFF solid;
-			margin: 20px 80px 24px 32px;
-			float: right;
-			display: inline;
 		}
 
 		#Debug_Range {
@@ -1005,19 +964,15 @@
 					<tr>
 						<td>
 							<input style="margin-left: 1px; height:25px;width:93px;padding-left:2px" type="button" class="Button" id="mask_image" value="Blur Image"
-							onClick="ShowBlurImage()"></input>
+							onClick="ShowMaskImage()"></input>
 						</td>
 						<td>
 							<input style="margin-left: 1px; height:25px;width:93px;padding-left:2px" type="button" class="Button" id="imagegamma_image" value="Gamma Image"
 							onClick="ShowGammaImage()"></input>
 						</td>
 						<td>
-							<input style="margin-left: 1px; height:25px;width:93px;padding-left:2px" type="button" class="Button" id="nonbackground_image" value="Nonbg Image" 
-							onClick="ShowNonbgImage()"></input>
-						</td>
-						<td>
-							<input style="margin-left: 1px; height:25px;width:93px;padding-left:2px" type="button" class="Button" id="edge_image" value="Edge Image"
-							onClick="ShowEdgeImage()"></input>
+							<input style="margin-left: 1px; height:25px;width:93px;padding-left:2px" type="button" class="Button" id="merhough_image" value="MHough Image"
+							onClick="ShowMerhoughImage()"></input>
 						</td>
 					</tr>
 				</table>
@@ -1028,24 +983,11 @@
 			<div id="div_imagegamma_image">
 				<img id="imagegamma_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/Gamma_image">
 			</div>
-			<div id="div_nonbackground_image">
-				<img id="nonbackground_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/nobackgroud_image">
-			</div>
-			<div id="div_edge_image">
-				<img id="edge_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/edge_image">
+			<div id="div_merhough_image">
+				<img id="merhough_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/merhough_image">
 			</div>
 		</div>					
 	</form>
-	<!-- <form>
-		<div id="vision2" align="left">
-			<div id="div_field_image">
-				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/localization/DrawRobotPos">
-			</div>
-			<div id="div_field_image">
-				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/localization/ParticlePoint">
-			</div>
-		</div>
-	<form> -->
 </body>
 
 </html>
