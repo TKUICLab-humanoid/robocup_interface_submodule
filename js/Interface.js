@@ -1,19 +1,16 @@
 var ros = new ROSLIB.Ros({
-  url : 'ws://172.17.121.10:9090'
+  url: "ws://172.17.121.10:9090"
 });
-ros.on('connection', function(){
-  var fbDiv = document.getElementById('feedback');
+ros.on('connection', function () {
   console.log('Connection made!');
   document.getElementById('connected').style.display = 'inline';
-  //fbDiv.innerHTML += "<p>Connected to websocket server.</p>";
 });
-ros.on('error', function(error){
-  var fbDiv = document.getElementById('feedback');
-  fbDiv.innerHTML += "<p>Error connecting to websocket server.</p>";
+ros.on('error', function (error) {
+  console.log('Error connecting to websocket server: ', error);
 });
-ros.on('close', function(){
-  var fbDiv = document.getElementById('feedback');
-  fbDiv.innerHTML += "<p>Connection to websocket server closed.</p>";
+ros.on('close', function () {
+  console.log('Connection to websocket server closed.');
+  document.getElementById('connected').style.display = 'none';
 });
 
 var interface = new ROSLIB.Topic({
@@ -110,6 +107,21 @@ ExecuteCallBack.subscribe(function (msg)
 	document.getElementById('label').innerHTML = "Execute is fail !! Please try again !!";
   }
 });
+
+var firstConnectFlag = true;
+var myaddress = "172.17.121.10";
+
+function enterAddress() {
+  if(!firstConnectFlag)
+  {
+    ros.close();
+  } else {
+    firstConnectFlag = false;
+  }
+  myaddress = document.getElementById("addressSelect").value;
+  console.log("Connecting address is", myaddress)
+  ros.connect("ws://" + myaddress + ":9090");
+}
 
 function sleep(ms)
 {
