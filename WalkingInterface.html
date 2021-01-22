@@ -62,10 +62,12 @@
 		});
 		ros.on('connection', function () {
 			console.log('Connection made!');
+			createTopics();
 			document.getElementById('connected').style.display = 'inline';
 		});
 		ros.on('error', function (error) {
 			console.log('Error connecting to websocket server: ', error);
+			enterAddress();
 		});
 		ros.on('close', function () {
 			console.log('Connection to websocket server closed.');
@@ -139,15 +141,6 @@
 			}
 		});
 
-		var Wave_Topic = new ROSLIB.Topic({
-			ros: ros,
-			name: '/wave',
-			messageType: 'tku_msgs/wavelist'
-		});
-		var wave_msg = new ROSLIB.Message({
-			wavelist: [0]
-		});
-
 		var WaveRequest_Topic = new ROSLIB.Topic({
 				ros: ros,
 				name: '/WaveRequest_Topic',
@@ -176,12 +169,6 @@
 			GainSet: false
 		});
 
-		var SensorPackage_Subscriber = new ROSLIB.Topic({
-			ros: ros,
-			name: '/package/sensorpackage',
-			messageType: 'tku_msgs/SensorPackage'
-		});
-
 		var LoadWalkingGaitParameterClient = new ROSLIB.Service({
 			ros: ros,
 			name: '/web/LoadWalkingGaitParameter',
@@ -192,6 +179,10 @@
 		});
 
 		//-----
+		var SensorPackage_Subscriber;
+		var Wave_Topic;
+		var wave_msg;
+
 		var firstConnectFlag = true;
 		var myaddress = "172.17.121.10";
 		
@@ -252,20 +243,60 @@
 		var ypointvalue_tmp = 0;
 		/* Kick Ball Variables End */
 
-		SensorPackage_Subscriber.subscribe(function (msg)
-		{		
-			document.getElementById("Roll").value = msg.IMUData[0];
-			document.getElementById("Pitch").value = msg.IMUData[1];
-			document.getElementById("Yaw").value = msg.IMUData[2];
-			document.getElementById("Left_1").value = msg.ForceSensorData[0];
-			document.getElementById("Left_2").value = msg.ForceSensorData[1];
-			document.getElementById("Left_3").value = msg.ForceSensorData[2];
-			document.getElementById("Left_4").value = msg.ForceSensorData[3];
-			document.getElementById("Right_1").value = msg.ForceSensorData[4];
-			document.getElementById("Right_2").value = msg.ForceSensorData[5];
-			document.getElementById("Right_3").value = msg.ForceSensorData[6];
-			document.getElementById("Right_4").value = msg.ForceSensorData[7];
-		});
+		function createTopics() {
+			var SensorPackage_Subscriber = new ROSLIB.Topic({
+			ros: ros,
+			name: '/package/sensorpackage',
+			messageType: 'tku_msgs/SensorPackage'
+			});
+			SensorPackage_Subscriber.subscribe(function (msg)
+			{		
+				document.getElementById("Roll").value = msg.IMUData[0];
+				document.getElementById("Pitch").value = msg.IMUData[1];
+				document.getElementById("Yaw").value = msg.IMUData[2];
+				document.getElementById("Left_1").value = msg.ForceSensorData[0];
+				document.getElementById("Left_2").value = msg.ForceSensorData[1];
+				document.getElementById("Left_3").value = msg.ForceSensorData[2];
+				document.getElementById("Left_4").value = msg.ForceSensorData[3];
+				document.getElementById("Right_1").value = msg.ForceSensorData[4];
+				document.getElementById("Right_2").value = msg.ForceSensorData[5];
+				document.getElementById("Right_3").value = msg.ForceSensorData[6];
+				document.getElementById("Right_4").value = msg.ForceSensorData[7];
+			});
+
+			Wave_Topic = new ROSLIB.Topic({
+				ros: ros,
+				name: '/wave',
+				messageType: 'tku_msgs/wavelist'
+			});
+			wave_msg = new ROSLIB.Message({
+				wavelist: [0]
+			});
+			Wave_Topic.subscribe(function (msg) 
+			{
+				msg.wavelist.clear;
+				point.clear;
+				r_move_x.clear;
+				l_move_x.clear;
+				for (var i = 0; i < msg.wavelist.length; i++) 
+				{
+					r_move_x[i] = msg.wavelist[i].R_move_X;
+					l_move_x[i] = msg.wavelist[i].L_move_X;
+					r_move_y[i] = msg.wavelist[i].R_move_Y;
+					l_move_y[i] = msg.wavelist[i].L_move_Y;
+					r_move_z[i] = msg.wavelist[i].R_move_Z;
+					l_move_z[i] = msg.wavelist[i].L_move_Z;
+					move_com_x[i] = msg.wavelist[i].move_COM_X;
+					move_com_y[i] = msg.wavelist[i].move_COM_Y;
+					move_com_z[i] = msg.wavelist[i].move_COM_Z;
+					r_Theta[i] = msg.wavelist[i].R_Theta;
+					l_Theta[i] = msg.wavelist[i].L_Theta;
+					point[i] = msg.wavelist[i].Point;
+				}
+				datalong = msg.wavelist.length;
+				console.log(datalong);
+			});
+		}
 
 		function enterAddress() {
 			if(!firstConnectFlag)
@@ -866,30 +897,6 @@
 			}
 			Continuousback_Topic.publish(Continuousback_msg);
 		}
-		Wave_Topic.subscribe(function (msg) 
-		{
-			msg.wavelist.clear;
-			point.clear;
-			r_move_x.clear;
-			l_move_x.clear;
-			for (var i = 0; i < msg.wavelist.length; i++) 
-			{
-				r_move_x[i] = msg.wavelist[i].R_move_X;
-				l_move_x[i] = msg.wavelist[i].L_move_X;
-				r_move_y[i] = msg.wavelist[i].R_move_Y;
-				l_move_y[i] = msg.wavelist[i].L_move_Y;
-				r_move_z[i] = msg.wavelist[i].R_move_Z;
-				l_move_z[i] = msg.wavelist[i].L_move_Z;
-				move_com_x[i] = msg.wavelist[i].move_COM_X;
-				move_com_y[i] = msg.wavelist[i].move_COM_Y;
-				move_com_z[i] = msg.wavelist[i].move_COM_Z;
-				r_Theta[i] = msg.wavelist[i].R_Theta;
-				l_Theta[i] = msg.wavelist[i].L_Theta;
-				point[i] = msg.wavelist[i].Point;
-			}
-			datalong = msg.wavelist.length;
-			console.log(datalong);
-		});
 
 		function DrawaXYaxisfun()
 		{

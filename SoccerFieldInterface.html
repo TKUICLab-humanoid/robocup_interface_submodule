@@ -18,10 +18,12 @@
 			});
 			ros.on('connection', function () {
 				console.log('Connection made!');
+				createTopics();
 				document.getElementById('connected').style.display = 'inline';
 			});
 			ros.on('error', function (error) {
 				console.log('Error connecting to websocket server: ', error);
+				enterAddress()
 			});
 			ros.on('close', function () {
 				console.log('Connection to websocket server closed.');
@@ -44,11 +46,6 @@
 				name: 'sensorset',
 				messageType: 'tku_msgs/SensorSet'
 			});
-			var robot_pos_Subscriber = new ROSLIB.Topic({
-				ros: ros,
-				name: '/localization/robotpos',
-				messageType: 'tku_msgs/RobotPos'
-			});
 			var set_robot_pos = new ROSLIB.Message({
 				number : 0,
 				x : 0,
@@ -69,16 +66,9 @@
 				ForceState : false
 			});
 
-			robot_pos_Subscriber.subscribe(function (msg)
-			{
-				RobotArray[0][0] = msg.x;
-				RobotArray[0][1] = msg.y;
-				RobotArray[0][2] = msg.dir;
-				Robot_flag[0] = true;
-				drawField();
-			});
-
 			//-----
+			var robot_pos_Subscriber;
+
 			var firstConnectFlag = true;
 			var myaddress = "172.17.121.10";
 
@@ -110,7 +100,25 @@
 			var tmpvalue = 0
 			var keycode;
 
-			function enterAddress() {
+			function createTopics()
+			{
+				robot_pos_Subscriber = new ROSLIB.Topic({
+				ros: ros,
+				name: '/localization/robotpos',
+				messageType: 'tku_msgs/RobotPos'
+				});
+				robot_pos_Subscriber.subscribe(function (msg)
+				{
+					RobotArray[0][0] = msg.x;
+					RobotArray[0][1] = msg.y;
+					RobotArray[0][2] = msg.dir;
+					Robot_flag[0] = true;
+					drawField();
+				});
+			}
+
+			function enterAddress()
+			{
 				if(!firstConnectFlag)
 				{
 					ros.close();
