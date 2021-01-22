@@ -4,6 +4,7 @@ var ros = new ROSLIB.Ros({
 ros.on('connection', function () {
   console.log('Connection made!');
   createTopics();
+  resetfunction();
   document.getElementById('connected').style.display = 'inline';
 });
 ros.on('error', function (error) {
