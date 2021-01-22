@@ -12,20 +12,25 @@
 
 		<script type="text/javascript"></script>
 		<script language="javascript">
+
 			var ros = new ROSLIB.Ros({
-				url: 'ws://172.17.121.10:9090'
+			url: "ws://172.17.121.10:9090"
 			});
 			ros.on('connection', function () {
 				console.log('Connection made!');
+				createTopics();
 				document.getElementById('connected').style.display = 'inline';
 			});
 			ros.on('error', function (error) {
 				console.log('Error connecting to websocket server: ', error);
+				enterAddress()
 			});
 			ros.on('close', function () {
 				console.log('Connection to websocket server closed.');
+				document.getElementById('connected').style.display = 'none';
 			});
-			//start end data send
+
+			//start and data send
 			var set_robot_Publisher = new ROSLIB.Topic({
 					ros : ros,
 					name :'/web/setrobot',
@@ -40,11 +45,6 @@
 				ros: ros,
 				name: 'sensorset',
 				messageType: 'tku_msgs/SensorSet'
-			});
-			var robot_pos_Subscriber = new ROSLIB.Topic({
-				ros: ros,
-				name: '/localization/robotpos',
-				messageType: 'tku_msgs/RobotPos'
 			});
 			var set_robot_pos = new ROSLIB.Message({
 				number : 0,
@@ -66,14 +66,12 @@
 				ForceState : false
 			});
 
-			robot_pos_Subscriber.subscribe(function (msg)
-			{
-				RobotArray[0][0] = msg.x;
-				RobotArray[0][1] = msg.y;
-				RobotArray[0][2] = msg.dir;
-				Robot_flag[0] = true;
-				drawField();
-			});
+			//-----
+			var robot_pos_Subscriber;
+
+			var firstConnectFlag = true;
+			var myaddress = "172.17.121.10";
+
 			var RobotArray = [];
 			var Robot_cnt = 4;
 			var Robot_flag = [];
@@ -101,6 +99,37 @@
 			var tempY = 0
 			var tmpvalue = 0
 			var keycode;
+
+			function createTopics()
+			{
+				robot_pos_Subscriber = new ROSLIB.Topic({
+				ros: ros,
+				name: '/localization/robotpos',
+				messageType: 'tku_msgs/RobotPos'
+				});
+				robot_pos_Subscriber.subscribe(function (msg)
+				{
+					RobotArray[0][0] = msg.x;
+					RobotArray[0][1] = msg.y;
+					RobotArray[0][2] = msg.dir;
+					Robot_flag[0] = true;
+					drawField();
+				});
+			}
+
+			function enterAddress()
+			{
+				if(!firstConnectFlag)
+				{
+					ros.close();
+				} else {
+					firstConnectFlag = false;
+				}
+				myaddress = document.getElementById("addressSelect").value;
+				console.log("Connecting address is", myaddress)
+				ros.connect("ws://" + myaddress + ":9090");
+			}
+
 			function init() 
 			{
 				console.log("init");
@@ -518,14 +547,6 @@
 				margin: 0 auto;
 			}
 		
-			button {
-				width: 180px;
-				height:60px;
-				margin-bottom: 10%;
-				font-size: 20px;
-				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-			}
-		
 			section {
 				padding: 0px;
 			}
@@ -565,28 +586,47 @@
 			Connected
 		</p>
 		<div id="head" align="center">
-			<h1 id="header">SoccerFiled Interface</h1>
+			<h1 align="center" id="header" style="color: white;">SoccerFiled Interface</h1>
+			<table>
+				<tr>
+					<td>
+						<select style="height:25px; margin-right: 5px;" id="addressSelect">
+							<option value="172.17.121.10">172.17.121.10</option>
+							<option value="localhost">localhost</option>
+						</select>
+					</td>
+					<td>
+						<button type="button" style="width:110px ;height:25px;" id="changeAddressButton" onclick="enterAddress()">Enter Address</button>
+					</td>
+				</tr>
+			</table>
 		</div>
 		<div id="container" align="center">
 			<section id="buttonarea" align="left" style="float: left;">
 				<table>
 					<tr>
 						<td>
-							<button type="button" id="setrobot_button" onclick="setRobot()">
+							<button type="button" id="setrobot_button" onclick="setRobot()"
+								style = "width: 180px; height:60px; margin-bottom: 10%; font-size: 20px;
+								font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
 								SetRobot
 							</button>
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<button type="button" id="setgoalpoint_button" onclick="setGoalPoint()">
+							<button type="button" id="setgoalpoint_button" onclick="setGoalPoint()"
+								style = "width: 180px; height:60px; margin-bottom: 10%; font-size: 20px;
+								font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
 								SetGoalPoint
 							</button>
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<button type="button" id="IMUrest_button" style = "margin-top : 270%"onclick="IMUrest()">
+							<button type="button" id="IMUrest_button" onclick="IMUrest()"
+									style = "width: 180px; height:60px; margin-top : 270%; margin-bottom: 10%; font-size: 20px;
+									font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
 								IMUrest
 							</button>
 						</td>

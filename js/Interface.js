@@ -1,115 +1,143 @@
 var ros = new ROSLIB.Ros({
-  url : 'ws://172.17.121.10:9090'
+  url: "ws://172.17.121.10:9090"
 });
-ros.on('connection', function(){
-  var fbDiv = document.getElementById('feedback');
+ros.on('connection', function () {
   console.log('Connection made!');
+  createTopics();
   document.getElementById('connected').style.display = 'inline';
-  //fbDiv.innerHTML += "<p>Connected to websocket server.</p>";
 });
-ros.on('error', function(error){
-  var fbDiv = document.getElementById('feedback');
-  fbDiv.innerHTML += "<p>Error connecting to websocket server.</p>";
+ros.on('error', function (error) {
+  console.log('Error connecting to websocket server: ', error);
+  enterAddress();
 });
-ros.on('close', function(){
-  var fbDiv = document.getElementById('feedback');
-  fbDiv.innerHTML += "<p>Connection to websocket server closed.</p>";
+ros.on('close', function () {
+  console.log('Connection to websocket server closed.');
+  document.getElementById('connected').style.display = 'none';
 });
 
 var interface = new ROSLIB.Topic({
-  ros : ros,
-  name : '/package/InterfaceSend2Sector',
+  ros: ros,
+  name: '/package/InterfaceSend2Sector',
   messageType: 'tku_msgs/InterfaceSend2Sector'
 });
 var SendPackage = new ROSLIB.Message({
-  Package : 0,
-  sectorname : ""
+  Package: 0,
+  sectorname: ""
 });
 
 var SectorPackage = new ROSLIB.Topic({
-  ros : ros,
-  name : '/package/Sector',
-  messageType : 'std_msgs/Int16'
+  ros: ros,
+  name: '/package/Sector',
+  messageType: 'std_msgs/Int16'
 });
 var SendSectorPackage = new ROSLIB.Message({
   data : 0
 });
-var SendPackageCallBack = new ROSLIB.Topic({
-  ros : ros,
-  name : '/package/motioncallback',
-  messageType: 'std_msgs/Bool'
-});
-var ExecuteCallBack = new ROSLIB.Topic({
-  ros: ros,
-  name: '/package/executecallback',
-  messageType: 'std_msgs/Bool'
-});
+
 var InterfaceSaveMotionData = new ROSLIB.Topic({
-  ros : ros,
-  name : '/package/InterfaceSaveMotion',
+  ros: ros,
+  name: '/package/InterfaceSaveMotion',
   messageType: 'tku_msgs/SaveMotion'
 });
 var SaveMotionData = new ROSLIB.Message({
-    name : "",
-    motionstate : 0,
-    ID : 0,
-    savestate : 0,
-    saveflag : false,
-    MotionList:[0],
-    MotorData:[0]
+    name: "",
+    motionstate: 0,
+    ID: 0,
+    savestate: 0,
+    saveflag: false,
+    MotionList: [0],
+    MotorData: [0]
 });
+
+//-----
+var SendPackageCallBack;
+var ExecuteCallBack;
+
+var firstConnectFlag = true;
+var myaddress = "172.17.121.10";
 
 var FirstSend = true;
-SendPackageCallBack.subscribe(function(msg)
-{
-  console.log("SendPackageCallBack");
-  if(msg.data == true)
-  {
-    document.getElementById('label').innerHTML = "Send sector is successful !!";
-	document.getElementById('SaveButton').disabled = false;
-	document.getElementById('ReadButton').disabled = false;
-	document.getElementById('SaveStandButton').disabled = false;
-	document.getElementById('ReadStandButton').disabled = false;
-	document.getElementById('executeButton').disabled = false;
-	document.getElementById('standButton').disabled = false;
-	document.getElementById('MultipleButton').disabled = false;
-	document.getElementById('MergeButton').disabled = false;
-	document.getElementById('AddButton').disabled = false;
-	document.getElementById('DeleteButton').disabled = false;
-	document.getElementById('ReverseButton').disabled = false;
-	document.getElementById('CopyButton').disabled = false;
-	document.getElementById('CheckSumButton').disabled = false;
-  }
-  else if(msg.data == false)
-  {
-    document.getElementById('label').innerHTML = "Send sector is fail !! Please try again !!";
-  }
-});
 
-ExecuteCallBack.subscribe(function (msg)
+function createTopics()
 {
-  if (msg.data == true) {
-    document.getElementById('label').innerHTML = "Execute is finish !!";
-    document.getElementById('SaveButton').disabled = false;
-	document.getElementById('ReadButton').disabled = false;
-	document.getElementById('SaveStandButton').disabled = false;
-	document.getElementById('ReadStandButton').disabled = false;
-	document.getElementById('SendButton').disabled = false;
-	document.getElementById('executeButton').disabled = false;
-	document.getElementById('standButton').disabled = false;
-	document.getElementById('MultipleButton').disabled = false;
-	document.getElementById('MergeButton').disabled = false;
-	document.getElementById('AddButton').disabled = false;
-	document.getElementById('DeleteButton').disabled = false;
-	document.getElementById('ReverseButton').disabled = false;
-	document.getElementById('CopyButton').disabled = false;
-	document.getElementById('CheckSumButton').disabled = false;
+  SendPackageCallBack = new ROSLIB.Topic({
+    ros: ros,
+    name: '/package/motioncallback',
+    messageType: 'std_msgs/Bool'
+  });
+  SendPackageCallBack.subscribe(function(msg)
+  {
+    console.log("SendPackageCallBack");
+    if(msg.data == true)
+    {
+      document.getElementById('label').innerHTML = "Send sector is successful !!";
+      document.getElementById('SaveButton').disabled = false;
+      document.getElementById('ReadButton').disabled = false;
+      document.getElementById('SaveStandButton').disabled = false;
+      document.getElementById('ReadStandButton').disabled = false;
+      document.getElementById('executeButton').disabled = false;
+      document.getElementById('standButton').disabled = false;
+      document.getElementById('MultipleButton').disabled = false;
+      document.getElementById('MergeButton').disabled = false;
+      document.getElementById('AddButton').disabled = false;
+      document.getElementById('DeleteButton').disabled = false;
+      document.getElementById('ReverseButton').disabled = false;
+      document.getElementById('CopyButton').disabled = false;
+      document.getElementById('CheckSumButton').disabled = false;
+    }
+    else if(msg.data == false)
+    {
+      document.getElementById('label').innerHTML = "Send sector is fail !! Please try again !!";
+    }
+  });
+
+  ExecuteCallBack = new ROSLIB.Topic({
+    ros: ros,
+    name: '/package/executecallback',
+    messageType: 'std_msgs/Bool'
+  });
+  ExecuteCallBack.subscribe(function (msg)
+  {
+    if (msg.data == true) {
+      document.getElementById('label').innerHTML = "Execute is finish !!";
+      document.getElementById('SaveButton').disabled = false;
+      document.getElementById('ReadButton').disabled = false;
+      document.getElementById('SaveStandButton').disabled = false;
+      document.getElementById('ReadStandButton').disabled = false;
+      document.getElementById('SendButton').disabled = false;
+      document.getElementById('executeButton').disabled = false;
+      document.getElementById('standButton').disabled = false;
+      document.getElementById('MultipleButton').disabled = false;
+      document.getElementById('MergeButton').disabled = false;
+      document.getElementById('AddButton').disabled = false;
+      document.getElementById('DeleteButton').disabled = false;
+      document.getElementById('ReverseButton').disabled = false;
+      document.getElementById('CopyButton').disabled = false;
+      document.getElementById('CheckSumButton').disabled = false;
+    }
+    else
+    {
+      document.getElementById('label').innerHTML = "Execute is fail !! Please try again !!";
+    }
+  });
+}
+
+function enterAddress() 
+{
+  document.getElementById('label').innerHTML = ""
+  document.getElementById('stand_label').innerHTML = ""
+  if(!firstConnectFlag)
+  {
+    ros.close();
   }
   else
   {
-	document.getElementById('label').innerHTML = "Execute is fail !! Please try again !!";
+    firstConnectFlag = false;
   }
-});
+  myaddress = document.getElementById("addressSelect").value;
+  console.log("Connecting address is", myaddress)
+  ros.connect("ws://" + myaddress + ":9090");
+}
 
 function sleep(ms)
 {
@@ -121,6 +149,7 @@ function sleep(ms)
 
 function Save()
 {
+  document.getElementById('stand_label').innerHTML = ""
   SaveMotionData.savestate = 0;
   SaveMotionData.name = document.getElementById('filename').value;
   for(var i = 0;i < document.getElementById('MotionTable').getElementsByTagName('div').length;i+=2)
@@ -178,6 +207,7 @@ function Save()
 
 function Read()
 {
+  document.getElementById('stand_label').innerHTML = ""
   var LoadParameterClient = new ROSLIB.Service({
     ros : ros,
     name : '/package/InterfaceReadSaveMotion',
@@ -253,12 +283,13 @@ function Read()
           break;
       }
     }
-	document.getElementById('label').innerHTML = "Read file is successful !!";
+	  document.getElementById('label').innerHTML = "Read file is successful !!";
   });
 }
 
 function SaveStand()
 {
+  document.getElementById('stand_label').innerHTML = ""
   SaveMotionData.savestate = 1;
   SaveMotionData.name = document.getElementById('filename').value;
   for(var i = 0;i < document.getElementById('MotionTable').getElementsByTagName('div').length;i+=2)
@@ -316,6 +347,7 @@ function SaveStand()
 
 function ReadStand()
 {
+  document.getElementById('stand_label').innerHTML = ""
   var LoadParameterClient = new ROSLIB.Service({
     ros : ros,
     name : '/package/InterfaceReadSaveMotion',
@@ -391,12 +423,14 @@ function ReadStand()
           break;
       }
     }
-	document.getElementById('label').innerHTML = "ReadStand file is successful !!";
+	  document.getElementById('label').innerHTML = "ReadStand file is successful !!";
   });
 }
 
 function Send()
 {
+  document.getElementById('label').innerHTML = ""
+  document.getElementById('stand_label').innerHTML = ""
   document.getElementById('SaveButton').disabled = true;
   document.getElementById('ReadButton').disabled = true;
   document.getElementById('SaveStandButton').disabled = true;
@@ -672,6 +706,7 @@ function Send()
 
 function Locked()
 {
+  document.getElementById('stand_label').innerHTML = ""
   if (!document.getElementById('Locked29').checked)
   {
     document.getElementById('label').innerHTML = "Sector 29 is Unlocked";
@@ -685,6 +720,7 @@ function Locked()
 var stand_flag=false;
 function execute()
 {
+  document.getElementById('label').innerHTML = ""
   document.getElementById('SaveButton').disabled = true;
   document.getElementById('ReadButton').disabled = true;
   document.getElementById('SaveStandButton').disabled = true;
@@ -707,6 +743,7 @@ function execute()
 
 function stand()
 {
+  document.getElementById('label').innerHTML = ""
   document.getElementById('standButton').disabled = true;
 
   SendSectorPackage.data = 29;
@@ -719,6 +756,8 @@ function stand()
 
 function resetfunction()
 {
+  document.getElementById('label').innerHTML = ""
+  document.getElementById('stand_label').innerHTML = ""
   document.getElementById('SaveButton').disabled = false;
   document.getElementById('ReadButton').disabled = false;
   document.getElementById('SaveStandButton').disabled = false;
@@ -748,25 +787,25 @@ function Multiple()
   else if(document.getElementById("RelativePosition").style.display == "initial")
   {
     for(var i = 0; i < document.getElementById('RelativePositionTable').getElementsByTagName('div').length; i += 2)
-	{
-      if(document.getElementById('RelativePositionTable').getElementsByTagName('div')[i].getElementsByClassName('textbox')[0].value == num)
 	  {
+      if(document.getElementById('RelativePositionTable').getElementsByTagName('div')[i].getElementsByClassName('textbox')[0].value == num)
+	    {
         n = i;
         numflag = true;
         break;
       }  
     }
     if(numflag == true)
-	{
-      for (var j = 1; j <= 21; j++)
 	  {
+      for (var j = 1; j <= 21; j++)
+	    {
         var value = Number(document.getElementById('RelativePositionTable').getElementsByTagName('div')[n+1].getElementsByClassName('textbox')[j].value);
         document.getElementById('RelativePositionTable').getElementsByTagName('div')[n+1].getElementsByClassName('textbox')[j].value = value * times;
       }
       document.getElementById('label').innerHTML = "Multiple is successful !!";
     }
     else
-	{
+	  {
       document.getElementById('label').innerHTML = "Multiple is fail !! No this ID !!";
     }
   
@@ -774,25 +813,25 @@ function Multiple()
   else if(document.getElementById("RelativeSpeed").style.display == "initial")
   {
     for(var i = 0; i<document.getElementById('RelativeSpeedTable').getElementsByTagName('div').length; i += 2)
-	{
-      if(document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[i].getElementsByClassName('textbox')[0].value == num)
 	  {
+      if(document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[i].getElementsByClassName('textbox')[0].value == num)
+	    {
         n = i;
         numflag = true;
         break;
       }  
     }
     if(numflag==true)
-	{
-      for (var j = 1; j <= 21; j++)
 	  {
+      for (var j = 1; j <= 21; j++)
+	    {
         var value = Number(document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[n+1].getElementsByClassName('textbox')[j].value);
         document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[n+1].getElementsByClassName('textbox')[j].value = value * times;
       }
       document.getElementById('label').innerHTML = "Multiple is successful !!";
     }
     else
-	{
+	  {
       document.getElementById('label').innerHTML = "Multiple is fail !! No this ID !!";
     }
   }  
@@ -820,36 +859,36 @@ function Merge(){
   else if(document.getElementById("RelativePosition").style.display == "initial" || document.getElementById("RelativeSpeed").style.display ==  "initial")
   {
     for(var i = 0;i < document.getElementById('RelativePositionTable').getElementsByTagName('div').length && num1 != num2; i += 2)
-	{
-      if(document.getElementById('RelativePositionTable').getElementsByTagName('div')[i].getElementsByClassName('textbox')[0].value == num1)
 	  {
+      if(document.getElementById('RelativePositionTable').getElementsByTagName('div')[i].getElementsByClassName('textbox')[0].value == num1)
+	    {
         n1 = i;
         num1flag = true;
       }
       if(document.getElementById('RelativePositionTable').getElementsByTagName('div')[i].getElementsByClassName('textbox')[0].value == num2)
-	  {
+	    {
         n2 = i;
         num2flag = true;
       }
-	  if(num1flag == true && num2flag == true)
-	  {
-		break;
-	  }
+      if(num1flag == true && num2flag == true)
+      {
+      break;
+      }
     }
     if(num1flag == true && num2flag == true)
-	{
-      for(var j = 1; j <= 21; j++)
 	  {
-		var value = Number(document.getElementById('RelativePositionTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value);
-		document.getElementById('RelativePositionTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value = value + Number(document.getElementById('RelativePositionTable').getElementsByTagName('div')[n1+1].getElementsByClassName('textbox')[j].value);
-		if(value != 0 && document.getElementById('RelativePositionTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value == 0)
-		{
-		  document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value = 0;
-		}
-		else if(value == 0 && document.getElementById('RelativePositionTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value != 0 && document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value == 0)
-		{
-			document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value = 20;
-		}
+      for(var j = 1; j <= 21; j++)
+	    {
+        var value = Number(document.getElementById('RelativePositionTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value);
+        document.getElementById('RelativePositionTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value = value + Number(document.getElementById('RelativePositionTable').getElementsByTagName('div')[n1+1].getElementsByClassName('textbox')[j].value);
+        if(value != 0 && document.getElementById('RelativePositionTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value == 0)
+        {
+          document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value = 0;
+        }
+        else if(value == 0 && document.getElementById('RelativePositionTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value != 0 && document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value == 0)
+        {
+          document.getElementById('RelativeSpeedTable').getElementsByTagName('div')[n2+1].getElementsByClassName('textbox')[j].value = 20;
+        }
       }
       document.getElementById('RelativePositionTable').removeChild(document.getElementById('RelativePositionTable').getElementsByTagName('div')[n1]);
       document.getElementById('RelativePositionTable').removeChild(document.getElementById('RelativePositionTable').getElementsByTagName('div')[n1]);
@@ -858,23 +897,23 @@ function Merge(){
       document.getElementById('label').innerHTML = "Merge is successful !!";
     }
     else
-	{
-	  if(num1 == num2)
 	  {
-		document.getElementById('label').innerHTML = "ID1 can't be the same as ID2 !!";
-	  }
-	  else if(num1flag == false && num2flag == true)
-	  {
-		document.getElementById('label').innerHTML = "Merge is fail !! No ID1 !!";
-	  }
-	  else if(num1flag == true && num2flag == false)
-	  {
-		document.getElementById('label').innerHTML = "Merge is fail !! No ID2 !!";
-	  }
-	  else if(num1flag == false && num2flag == false)
-	  {
-		document.getElementById('label').innerHTML = "Merge is fail !! No both ID !!";
-	  }
+      if(num1 == num2)
+      {
+        document.getElementById('label').innerHTML = "ID1 can't be the same as ID2 !!";
+      }
+      else if(num1flag == false && num2flag == true)
+      {
+        document.getElementById('label').innerHTML = "Merge is fail !! No ID1 !!";
+      }
+      else if(num1flag == true && num2flag == false)
+      {
+        document.getElementById('label').innerHTML = "Merge is fail !! No ID2 !!";
+      }
+      else if(num1flag == false && num2flag == false)
+      {
+        document.getElementById('label').innerHTML = "Merge is fail !! No both ID !!";
+      }
     }
   }  
   else if(document.getElementById("AbsolutePosition").style.display == "initial" || document.getElementById("AbsoluteSpeed").style.display ==  "initial")
