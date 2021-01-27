@@ -23,7 +23,8 @@
 			});
 			ros.on('error', function (error) {
 				console.log('Error connecting to websocket server: ', error);
-				enterAddress()
+				document.getElementById('connected').style.display = 'none';
+				enterAddress();
 			});
 			ros.on('close', function () {
 				console.log('Connection to websocket server closed.');
@@ -573,7 +574,9 @@
 	<body onLoad="init();">
 		<ul>
 			<li><a target="_blank" class="navbarright" href="WalkingInterface.html">Walking Interface</a></li>
-			<li><a target="_blank" class="navbarright" href="ImageProcessInterface.html">Humanoid Interface</a></li>
+			<li><a target="_blank" style="text-decoration: underline;" class="navbarright"
+					href="SoccerFieldInterface.html">SoccerField Interface</a></li>
+			<li><a target="_blank" class="navbarright" href="RoboCupVisionInterface.html">Vision Interface</a></li>
 			<li><a target="_blank" class="navbarright" href="MotionControlInterface.html">Motion Controller</a></li>
 			<li><a target="_blank" class="navbarright" href="index.html">Home</a></li>
 			<li class="logo">
