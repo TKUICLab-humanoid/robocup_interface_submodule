@@ -18,13 +18,13 @@
 			});
 			ros.on('connection', function () {
 				console.log('Connection made!');
+				connectFlag = true;
 				createTopics();
 				document.getElementById('connected').style.display = 'inline';
 			});
 			ros.on('error', function (error) {
 				console.log('Error connecting to websocket server: ', error);
 				document.getElementById('connected').style.display = 'none';
-				enterAddress();
 			});
 			ros.on('close', function () {
 				console.log('Connection to websocket server closed.');
@@ -68,10 +68,10 @@
 			});
 
 			//-----
-			var robot_pos_Subscriber;
+			var robot_pos_Subscriber = null;
 
-			var firstConnectFlag = true;
-			var myaddress = "172.17.121.10";
+			var connectFlag = false;
+			var myAddress = "172.17.121.10";
 
 			var RobotArray = [];
 			var Robot_cnt = 4;
@@ -103,6 +103,10 @@
 
 			function createTopics()
 			{
+				if(robot_pos_Subscriber != null)
+				{
+					robot_pos_Subscriber.unsubscribe();
+				}
 				robot_pos_Subscriber = new ROSLIB.Topic({
 				ros: ros,
 				name: '/localization/robotpos',
@@ -120,15 +124,14 @@
 
 			function enterAddress()
 			{
-				if(!firstConnectFlag)
+				if(connectFlag)
 				{
 					ros.close();
-				} else {
-					firstConnectFlag = false;
+					connectFlag = false;
 				}
-				myaddress = document.getElementById("addressSelect").value;
-				console.log("Connecting address is", myaddress)
-				ros.connect("ws://" + myaddress + ":9090");
+				myAddress = document.getElementById("addressSelect").value;
+				console.log("Connecting address is", myAddress)
+				ros.connect("ws://" + myAddress + ":9090");
 			}
 
 			function init() 
