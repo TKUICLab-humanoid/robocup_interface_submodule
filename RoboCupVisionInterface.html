@@ -14,17 +14,29 @@
 	<script type="text/javascript" type="text/javascript">
 
 		var ros = new ROSLIB.Ros({
+<<<<<<< HEAD
 			url: 'ws://localhost:9090'
+=======
+			url: "ws://172.17.121.10:9090"
+>>>>>>> updatebranch_GuanWen
 		});
 		ros.on('connection', function () {
 			console.log('Connection made!');
+			connectFlag = true;
 			document.getElementById('connected').style.display = 'inline';
+			document.getElementById("object_image").style.display = 'inline';
+			document.getElementById("monitor_image").style.display = 'inline';
 		});
 		ros.on('error', function (error) {
 			console.log('Error connecting to websocket server: ', error);
+			document.getElementById('connected').style.display = 'none';
 		});
 		ros.on('close', function () {
 			console.log('Connection to websocket server closed.');
+			B_Measure_Flag = true;
+			document.getElementById("monitor_image").style.display = 'none';
+			document.getElementById("object_image").style.display = 'none';
+			document.getElementById('connected').style.display = 'none';
 		});
 
 		var Head_Topic = new ROSLIB.Topic({
@@ -109,7 +121,11 @@
 		});
 
 		//-----
+
 		var B_HoughForm_Flag = true;
+		var connectFlag = false;
+		var myAddress = "172.17.121.10";
+		var B_ColorModelForm_Flag = true;
 		var B_SetupCamera_Flag = true;
 		var B_Start_Flag = true;
 		var B_Measure_Flag = true;
@@ -139,6 +155,7 @@
 		var CamAuto_WhiteBalanceValue = false;
 		var CamAuto_BacklightCompensation = false;
 
+<<<<<<< HEAD
 		//BGR
 		function showBlueValue(newValue) {
 			document.getElementById("BlueValue").value = newValue;
@@ -225,6 +242,94 @@
 				}else
 				{
 					document.getElementById("container").style.height = "750px";
+=======
+		function enterAddress() {
+			if(connectFlag)
+			{
+				ros.close();
+				connectFlag = false;
+			}
+			myAddress = document.getElementById("addressSelect").value;
+			console.log("Connecting address is", myAddress)
+			ros.connect("ws://" + myAddress + ":9090");
+			document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/object_image";
+			document.getElementById("monitor_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/monitor_image";
+		}
+
+		function ResetColorModelFunction() {
+			document.getElementById("HminRange").value = 0;
+			document.getElementById("SminRange").value = 0;
+			document.getElementById("BminRange").value = 0;
+			document.getElementById("HmaxRange").value = 360;
+			document.getElementById("SmaxRange").value = 100;
+			document.getElementById("BmaxRange").value = 100;
+			document.getElementById("HminValue").value = 0;
+			document.getElementById("SminValue").value = 0;
+			document.getElementById("BminValue").value = 0;
+			document.getElementById("HmaxValue").value = 360;
+			document.getElementById("SmaxValue").value = 100;
+			document.getElementById("BmaxValue").value = 100;
+			Hmin = 0;
+			Hmax = 360;
+			Smin = 0;
+			Smax = 100;
+			Bmin = 0;
+			Bmax = 100;
+			HSVValuecmd.HMax = Number(Hmax);
+			HSVValuecmd.HMin = Number(Hmin);
+			HSVValuecmd.SMax = Number(Smax);
+			HSVValuecmd.SMin = Number(Smin);
+			HSVValuecmd.VMax = Number(Bmax);
+			HSVValuecmd.VMin = Number(Bmin);
+			HSVValue_Topic.publish(HSVValuecmd);
+			console.log("ResetColorModelFunction");
+		}
+		function CloseColorModelFunction() {
+			document.getElementById("HminRange").value = 0;
+			document.getElementById("SminRange").value = 0;
+			document.getElementById("BminRange").value = 0;
+			document.getElementById("HmaxRange").value = 0;
+			document.getElementById("SmaxRange").value = 0;
+			document.getElementById("BmaxRange").value = 0;
+			document.getElementById("HminValue").value = 0;
+			document.getElementById("SminValue").value = 0;
+			document.getElementById("BminValue").value = 0;
+			document.getElementById("HmaxValue").value = 0;
+			document.getElementById("SmaxValue").value = 0;
+			document.getElementById("BmaxValue").value = 0;
+			Hmin = 0;
+			Hmax = 0;
+			Smin = 0;
+			Smax = 0;
+			Bmin = 0;
+			Bmax = 0;
+			HSVValuecmd.HMax = Number(Hmax);
+			HSVValuecmd.HMin = Number(Hmin);
+			HSVValuecmd.SMax = Number(Smax);
+			HSVValuecmd.SMin = Number(Smin);
+			HSVValuecmd.VMax = Number(Bmax);
+			HSVValuecmd.VMin = Number(Bmin);
+			HSVValue_Topic.publish(HSVValuecmd);
+			console.log("CloseColorModelFunction");
+		}
+		function SaveColorModelFunction() {
+			console.log("SaveColorModelFunction");
+			SaveHSVreqrest.Save = true;
+			document.getElementById("SaveColorModel").disabled = "disabled";
+			SaveHSVClient.callService(SaveHSVreqrest, function (SaveHSVresult) {
+				if (SaveHSVresult.Already == true) {
+					document.getElementById("SaveColorModel").disabled = false;
+				}
+			});
+		}
+		function BuildColorModelFunction() {
+			console.log("BuildColorModelFunction");
+			Buildreqrest.Build = true;
+			document.getElementById("BuildColorModel").disabled = "disabled";
+			BuildClient.callService(Buildreqrest, function (Buildresult) {
+				if (Buildresult.Already == true) {
+					document.getElementById("BuildColorModel").disabled = false;
+>>>>>>> updatebranch_GuanWen
 				}
 				B_ShowDebugForm_Flag = false;
 			}else
@@ -309,12 +414,20 @@
 		{
 			if(B_Debug_Flag)
 			{
+<<<<<<< HEAD
 				document.getElementById("vision1").style.display = "inline";				
 				B_Debug_Flag = false;
 			}else
 			{
 				document.getElementById("vision1").style.display = "none";
 				B_Debug_Flag = true;
+=======
+				document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/measure_image";
+				B_Measure_Flag = false;
+			} else {
+				document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/object_image";
+				B_Measure_Flag = true;
+>>>>>>> updatebranch_GuanWen
 			}
 		}
 		
@@ -747,7 +860,9 @@
 	<!-- NAV BAR -->
 	<ul>
 		<li><a target="_blank" class="navbarright" href="WalkingInterface.html">Walking Interface</a></li>
-		<li><a target="_blank" style="text-decoration: underline;" class="navbarright" href="ImageProcessInterface.html">Humanoid Interface</a></li>
+		<li><a target="_blank" class="navbarright" href="SoccerFieldInterface.html">SoccerField Interface</a></li>
+		<li><a target="_blank" style="text-decoration: underline;" class="navbarright"
+				href="RoboCupVisionInterface.html">Vision Interface</a></li>
 		<li><a target="_blank" class="navbarright" href="MotionControlInterface.html">Motion Controller</a></li>
 		<li><a target="_blank" class="navbarright" href="index.html">Home</a></li>
 		<li class="logo">
@@ -761,13 +876,36 @@
 	<form>
 		<div id="head" align="center">
 			<h1 id="header">Humanoid Interface</h1>
+<<<<<<< HEAD
+=======
+			<table>
+				<tr>
+					<td>
+						<select style="height:25px; margin-right: 5px;" id="addressSelect">
+							<option value="172.17.121.10">172.17.121.10</option>
+							<option value="localhost">localhost</option>
+						</select>
+					</td>
+					<td>
+						<button type="button" style="width:110px ;height:25px;" id="changeAddressButton" onclick="enterAddress()">Enter Address</button>
+					</td>
+				</tr>
+			</table>
+>>>>>>> updatebranch_GuanWen
 		</div>
 		<div id="container" align="left">
 			<div id="div_object_image">
+<<<<<<< HEAD
 				<img id="object_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/object_image">
 			</div>
 			<div id="div_monitor_image">
 				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/monitor_image">
+=======
+				<img id="object_image" style="-webkit-user-select: none; display:none;" src="http://172.17.121.10:8080/stream?topic=/vision/object_image">
+			</div>
+			<div id="div_monitor_image">
+				<img id="monitor_image" style="-webkit-user-select: none; display:none;" src="http://172.17.121.10:8080/stream?topic=/vision/monitor_image">
+>>>>>>> updatebranch_GuanWen
 
 			</div>
 			<div id="Debug_Range">
