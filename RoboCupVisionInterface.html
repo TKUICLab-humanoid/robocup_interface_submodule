@@ -14,11 +14,7 @@
 	<script type="text/javascript" type="text/javascript">
 
 		var ros = new ROSLIB.Ros({
-<<<<<<< HEAD
-			url: 'ws://localhost:9090'
-=======
-			url: "ws://172.17.121.10:9090"
->>>>>>> updatebranch_GuanWen
+			url: "ws://localhost:9090"
 		});
 		ros.on('connection', function () {
 			console.log('Connection made!');
@@ -124,7 +120,7 @@
 
 		var B_HoughForm_Flag = true;
 		var connectFlag = false;
-		var myAddress = "172.17.121.10";
+		// var myAddress = "172.17.121.10";
 		var B_ColorModelForm_Flag = true;
 		var B_SetupCamera_Flag = true;
 		var B_Start_Flag = true;
@@ -155,7 +151,6 @@
 		var CamAuto_WhiteBalanceValue = false;
 		var CamAuto_BacklightCompensation = false;
 
-<<<<<<< HEAD
 		//BGR
 		function showBlueValue(newValue) {
 			document.getElementById("BlueValue").value = newValue;
@@ -242,94 +237,6 @@
 				}else
 				{
 					document.getElementById("container").style.height = "750px";
-=======
-		function enterAddress() {
-			if(connectFlag)
-			{
-				ros.close();
-				connectFlag = false;
-			}
-			myAddress = document.getElementById("addressSelect").value;
-			console.log("Connecting address is", myAddress)
-			ros.connect("ws://" + myAddress + ":9090");
-			document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/object_image";
-			document.getElementById("monitor_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/monitor_image";
-		}
-
-		function ResetColorModelFunction() {
-			document.getElementById("HminRange").value = 0;
-			document.getElementById("SminRange").value = 0;
-			document.getElementById("BminRange").value = 0;
-			document.getElementById("HmaxRange").value = 360;
-			document.getElementById("SmaxRange").value = 100;
-			document.getElementById("BmaxRange").value = 100;
-			document.getElementById("HminValue").value = 0;
-			document.getElementById("SminValue").value = 0;
-			document.getElementById("BminValue").value = 0;
-			document.getElementById("HmaxValue").value = 360;
-			document.getElementById("SmaxValue").value = 100;
-			document.getElementById("BmaxValue").value = 100;
-			Hmin = 0;
-			Hmax = 360;
-			Smin = 0;
-			Smax = 100;
-			Bmin = 0;
-			Bmax = 100;
-			HSVValuecmd.HMax = Number(Hmax);
-			HSVValuecmd.HMin = Number(Hmin);
-			HSVValuecmd.SMax = Number(Smax);
-			HSVValuecmd.SMin = Number(Smin);
-			HSVValuecmd.VMax = Number(Bmax);
-			HSVValuecmd.VMin = Number(Bmin);
-			HSVValue_Topic.publish(HSVValuecmd);
-			console.log("ResetColorModelFunction");
-		}
-		function CloseColorModelFunction() {
-			document.getElementById("HminRange").value = 0;
-			document.getElementById("SminRange").value = 0;
-			document.getElementById("BminRange").value = 0;
-			document.getElementById("HmaxRange").value = 0;
-			document.getElementById("SmaxRange").value = 0;
-			document.getElementById("BmaxRange").value = 0;
-			document.getElementById("HminValue").value = 0;
-			document.getElementById("SminValue").value = 0;
-			document.getElementById("BminValue").value = 0;
-			document.getElementById("HmaxValue").value = 0;
-			document.getElementById("SmaxValue").value = 0;
-			document.getElementById("BmaxValue").value = 0;
-			Hmin = 0;
-			Hmax = 0;
-			Smin = 0;
-			Smax = 0;
-			Bmin = 0;
-			Bmax = 0;
-			HSVValuecmd.HMax = Number(Hmax);
-			HSVValuecmd.HMin = Number(Hmin);
-			HSVValuecmd.SMax = Number(Smax);
-			HSVValuecmd.SMin = Number(Smin);
-			HSVValuecmd.VMax = Number(Bmax);
-			HSVValuecmd.VMin = Number(Bmin);
-			HSVValue_Topic.publish(HSVValuecmd);
-			console.log("CloseColorModelFunction");
-		}
-		function SaveColorModelFunction() {
-			console.log("SaveColorModelFunction");
-			SaveHSVreqrest.Save = true;
-			document.getElementById("SaveColorModel").disabled = "disabled";
-			SaveHSVClient.callService(SaveHSVreqrest, function (SaveHSVresult) {
-				if (SaveHSVresult.Already == true) {
-					document.getElementById("SaveColorModel").disabled = false;
-				}
-			});
-		}
-		function BuildColorModelFunction() {
-			console.log("BuildColorModelFunction");
-			Buildreqrest.Build = true;
-			document.getElementById("BuildColorModel").disabled = "disabled";
-			BuildClient.callService(Buildreqrest, function (Buildresult) {
-				if (Buildresult.Already == true) {
-					document.getElementById("BuildColorModel").disabled = false;
->>>>>>> updatebranch_GuanWen
 				}
 				B_ShowDebugForm_Flag = false;
 			}else
@@ -344,7 +251,20 @@
 				B_ShowDebugForm_Flag = true;
 			}
 		}
-		
+
+		function enterAddress() {
+			if(connectFlag)
+			{
+				ros.close();
+				connectFlag = false;
+			}
+			myAddress = document.getElementById("addressSelect").value;
+			console.log("Connecting address is", myAddress)
+			ros.connect("ws://" + myAddress + ":9090");
+			document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/object_image";
+			document.getElementById("monitor_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/monitor_image";
+		}
+
 		function CameraSetUp() {
 			if (B_SetupCamera_Flag) {
 				document.getElementById("Camera").style.display = "inline";
@@ -414,20 +334,12 @@
 		{
 			if(B_Debug_Flag)
 			{
-<<<<<<< HEAD
 				document.getElementById("vision1").style.display = "inline";				
 				B_Debug_Flag = false;
 			}else
 			{
 				document.getElementById("vision1").style.display = "none";
 				B_Debug_Flag = true;
-=======
-				document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/measure_image";
-				B_Measure_Flag = false;
-			} else {
-				document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/object_image";
-				B_Measure_Flag = true;
->>>>>>> updatebranch_GuanWen
 			}
 		}
 		
@@ -486,6 +398,16 @@
 				document.getElementById("object_image").src = "http://localhost:8080/stream?topic=/vision/object_image";
 				B_Measure_Flag = true;
 			}
+			// if(B_Measure_Flag)
+			// {
+			// 	document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/measure_image";
+			// 	B_Measure_Flag = false;
+			// }
+			// else
+			// {
+			// 	document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/object_image";
+			// 	B_Measure_Flag = true;
+			// }
 		}
 		function showCamBrightness(newValue) {
 			document.getElementById("CamBrightnessValue").value = newValue;
@@ -876,9 +798,7 @@
 	<form>
 		<div id="head" align="center">
 			<h1 id="header">Humanoid Interface</h1>
-<<<<<<< HEAD
-=======
-			<table>
+			<!-- <table>
 				<tr>
 					<td>
 						<select style="height:25px; margin-right: 5px;" id="addressSelect">
@@ -890,23 +810,14 @@
 						<button type="button" style="width:110px ;height:25px;" id="changeAddressButton" onclick="enterAddress()">Enter Address</button>
 					</td>
 				</tr>
-			</table>
->>>>>>> updatebranch_GuanWen
+			</table> -->
 		</div>
 		<div id="container" align="left">
 			<div id="div_object_image">
-<<<<<<< HEAD
-				<img id="object_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/object_image">
+				<img id="object_image" style="-webkit-user-select: none; display:none;" src="http://localhost:8080/stream?topic=/vision/object_image">
 			</div>
 			<div id="div_monitor_image">
-				<img id="monitor_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/monitor_image">
-=======
-				<img id="object_image" style="-webkit-user-select: none; display:none;" src="http://172.17.121.10:8080/stream?topic=/vision/object_image">
-			</div>
-			<div id="div_monitor_image">
-				<img id="monitor_image" style="-webkit-user-select: none; display:none;" src="http://172.17.121.10:8080/stream?topic=/vision/monitor_image">
->>>>>>> updatebranch_GuanWen
-
+				<img id="monitor_image" style="-webkit-user-select: none; display:none;" src="http://localhost:8080/stream?topic=/vision/monitor_image">
 			</div>
 			<div id="Debug_Range">
 				<table width="320">
