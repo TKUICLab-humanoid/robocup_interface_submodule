@@ -1,5 +1,5 @@
 var ros = new ROSLIB.Ros({
-  url: "ws://172.17.121.10:9090"
+  url: "ws://172.17.121.1:9090"
 });
 ros.on('connection', function () {
   console.log('Connection made!');
@@ -111,11 +111,14 @@ function keyBoardChangeAddress() { // I know that this function is stupid beacus
   {
     switch(document.getElementById("addressSelect").value)
     {
-      case "172.17.121.10":
+      case "172.17.121.1":
         document.getElementById("addressSelect").value = "localhost";
         break;
+      case "172.17.121.2":
+        document.getElementById("addressSelect").value = "172.17.121.1";
+        break;
       case "localhost":
-        document.getElementById("addressSelect").value = "172.17.121.10";		
+        document.getElementById("addressSelect").value = "172.17.121.2";		
         break;
     }
   }
@@ -123,11 +126,14 @@ function keyBoardChangeAddress() { // I know that this function is stupid beacus
   {
     switch(document.getElementById("addressSelect").value)
     {
-      case "172.17.121.10":
+      case "172.17.121.1":
+        document.getElementById("addressSelect").value = "172.17.121.2";
+        break;
+      case "172.17.121.2":
         document.getElementById("addressSelect").value = "localhost";
         break;
       case "localhost":
-        document.getElementById("addressSelect").value = "172.17.121.10";	
+        document.getElementById("addressSelect").value = "172.17.121.1";	
         break;
     }
   }
@@ -138,20 +144,29 @@ function changeDisplay() {
   document.getElementById("addressDisplay1").style.color = "#F9F900";
   document.getElementById("addressDisplay2").style.display = "none";
   document.getElementById("addressDisplay2").style.color = "#F9F900";
+  document.getElementById("addressDisplay3").style.display = "none";
+  document.getElementById("addressDisplay3").style.color = "#F9F900";
   switch(document.getElementById("addressSelect").value)
   {
-    case "172.17.121.10":
+    case "172.17.121.1":
       document.getElementById("addressDisplay1").style.display = "inline";
-      if(myAddress == "172.17.121.10" && connectFlag == true)
+      if(myAddress == "172.17.121.1" && connectFlag == true)
       {
         document.getElementById("addressDisplay1").style.color = "#00D600";
       }
       break;
-    case "localhost":
+    case "172.17.121.2":
       document.getElementById("addressDisplay2").style.display = "inline";
-      if(myAddress == "localhost" && connectFlag == true)
+      if(myAddress == "172.17.121.2" && connectFlag == true)
       {
         document.getElementById("addressDisplay2").style.color = "#00D600";
+      }
+      break;
+    case "localhost":
+      document.getElementById("addressDisplay3").style.display = "inline";
+      if(myAddress == "localhost" && connectFlag == true)
+      {
+        document.getElementById("addressDisplay3").style.color = "#00D600";
       }
       break;
   }
@@ -162,7 +177,7 @@ var SendPackageCallBack = null;
 var ExecuteCallBack = null;
 
 var connectFlag = false;
-var myAddress = "172.17.121.10";
+var myAddress = "172.17.121.1";
 
 var executeSubscribeFlag = false;
 var standSubscribeFlag = false;
@@ -269,11 +284,14 @@ function enterAddress()
 function connectFunction() {
   switch(document.getElementById("addressSelect").value)
   {
-    case "172.17.121.10":
+    case "172.17.121.1":
       document.getElementById("addressDisplay1").style.color = "#00D600";
       break;
-    case "localhost":
+    case "172.17.121.2":
       document.getElementById("addressDisplay2").style.color = "#00D600";
+      break;
+    case "localhost":
+      document.getElementById("addressDisplay3").style.color = "#00D600";
       break;
   }
   document.getElementById('connected').style.display = 'inline';
@@ -288,11 +306,14 @@ function disconnectFunction() {
   document.getElementById('connected').style.display = 'none';
   switch(document.getElementById("addressSelect").value)
   {
-    case "172.17.121.10":
+    case "172.17.121.1":
       document.getElementById("addressDisplay1").style.color = "#F9F900";
       break;
-    case "localhost":
+    case "172.17.121.2":
       document.getElementById("addressDisplay2").style.color = "#F9F900";
+      break;
+    case "localhost":
+      document.getElementById("addressDisplay3").style.color = "#F9F900";
       break;
   }
 }
