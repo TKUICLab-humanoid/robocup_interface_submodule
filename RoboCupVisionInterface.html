@@ -14,7 +14,7 @@
 	<script type="text/javascript" type="text/javascript">
 
 		var ros = new ROSLIB.Ros({
-			url: "ws://172.17.121.10:9090"
+			url: "ws://172.17.121.1:9090"
 		});
 		ros.on('connection', function () {
 			console.log('Connection made!');
@@ -158,16 +158,19 @@
 			}
 		}
 
-		function keyBoardChangeAddress() { // I know that this function is stupid beacuse it is written for more addresses.
+		function keyBoardChangeAddress() {
 			if(count == -1)
 			{
 				switch(document.getElementById("addressSelect").value)
 				{
-					case "172.17.121.10":
+					case "172.17.121.1":
 						document.getElementById("addressSelect").value = "localhost";
 						break;
+					case "172.17.121.2":
+						document.getElementById("addressSelect").value = "172.17.121.1";
+						break;
 					case "localhost":
-						document.getElementById("addressSelect").value = "172.17.121.10";		
+						document.getElementById("addressSelect").value = "172.17.121.2";		
 						break;
 				}
 			}
@@ -175,11 +178,14 @@
 			{
 				switch(document.getElementById("addressSelect").value)
 				{
-					case "172.17.121.10":
+					case "172.17.121.1":
+						document.getElementById("addressSelect").value = "172.17.121.2";
+						break;
+					case "172.17.121.2":
 						document.getElementById("addressSelect").value = "localhost";
 						break;
 					case "localhost":
-						document.getElementById("addressSelect").value = "172.17.121.10";	
+						document.getElementById("addressSelect").value = "172.17.121.1";	
 						break;
 				}
 			}
@@ -190,20 +196,29 @@
 			document.getElementById("addressDisplay1").style.color = "#F9F900";
 			document.getElementById("addressDisplay2").style.display = "none";
 			document.getElementById("addressDisplay2").style.color = "#F9F900";
+			document.getElementById("addressDisplay3").style.display = "none";
+			document.getElementById("addressDisplay3").style.color = "#F9F900";
 			switch(document.getElementById("addressSelect").value)
 			{
-				case "172.17.121.10":
+				case "172.17.121.1":
 					document.getElementById("addressDisplay1").style.display = "inline";
-					if(myAddress == "172.17.121.10" && connectFlag == true)
+					if(myAddress == "172.17.121.1" && connectFlag == true)
 					{
 						document.getElementById("addressDisplay1").style.color = "#00D600";
 					}
 					break;
-				case "localhost":
+				case "172.17.121.2":
 					document.getElementById("addressDisplay2").style.display = "inline";
-					if(myAddress == "localhost" && connectFlag == true)
+					if(myAddress == "172.17.121.2" && connectFlag == true)
 					{
 						document.getElementById("addressDisplay2").style.color = "#00D600";
+					}
+					break;
+				case "localhost":
+					document.getElementById("addressDisplay3").style.display = "inline";
+					if(myAddress == "localhost" && connectFlag == true)
+					{
+						document.getElementById("addressDisplay3").style.color = "#00D600";
 					}
 					break;
 			}
@@ -211,7 +226,7 @@
 
 		//-----
 		var connectFlag = false;
-		var myAddress = "172.17.121.10";
+		var myAddress = "172.17.121.1";
 
 		var B_ColorModelForm_Flag = true;
 		var B_SetupCamera_Flag = true;
@@ -249,11 +264,14 @@
 		function connectFunction() {
 			switch(document.getElementById("addressSelect").value)
 			{
-				case "172.17.121.10":
+				case "172.17.121.1":
 					document.getElementById("addressDisplay1").style.color = "#00D600";
 					break;
-				case "localhost":
+				case "172.17.121.2":
 					document.getElementById("addressDisplay2").style.color = "#00D600";
+					break;
+				case "localhost":
+					document.getElementById("addressDisplay3").style.color = "#00D600";
 					break;
 			}
 			document.getElementById('connected').style.display = 'inline';
@@ -272,11 +290,14 @@
 			document.getElementById('connected').style.display = 'none';
 			switch(document.getElementById("addressSelect").value)
 			{
-				case "172.17.121.10":
+				case "172.17.121.1":
 					document.getElementById("addressDisplay1").style.color = "#F9F900";
 					break;
-				case "localhost":
+				case "172.17.121.2":
 					document.getElementById("addressDisplay2").style.color = "#F9F900";
+					break;
+				case "localhost":
+					document.getElementById("addressDisplay3").style.color = "#F9F900";
 					break;
 			}
 		}
@@ -765,17 +786,17 @@
 
 		function showHorizontalPosition(newValue) {
 			if (window.event.keyCode == 13) {
-				if (newValue < document.getElementById("HorizontalPositionRange").min)
+				if (Number(newValue) < Number(document.getElementById("HorizontalPositionRange").min))
 				{
-					newValue = document.getElementById("HorizontalPositionRange").min;
-					document.getElementById("HorizontalPositionValue").value = newValue;
+					newValue = Number(document.getElementById("HorizontalPositionRange").min);
+					document.getElementById("HorizontalPositionValue").value = Number(newValue);
 				}
-				else if (newValue > document.getElementById("HorizontalPositionRange").max)
+				else if (Number(newValue) > Number(document.getElementById("HorizontalPositionRange").max))
 				{
-					newValue = document.getElementById("HorizontalPositionRange").max;
-					document.getElementById("HorizontalPositionValue").value = newValue;
+					newValue = Number(document.getElementById("HorizontalPositionRange").max);
+					document.getElementById("HorizontalPositionValue").value = Number(newValue);
 				}
-				document.getElementById("HorizontalPositionRange").value = newValue;
+				document.getElementById("HorizontalPositionRange").value = Number(newValue);
 				HeadPackagecmd.ID = Number(1);
 				HeadPackagecmd.Position = Number(document.getElementById("HorizontalPositionValue").value);
 				HeadPackagecmd.Speed = Number(document.getElementById("HorizontalSpeedValue").value);
@@ -783,7 +804,7 @@
 			}
 		}
 		function rangeHorizontalPosition(newValue) {
-			document.getElementById("HorizontalPositionValue").value = newValue;
+			document.getElementById("HorizontalPositionValue").value = Number(newValue);
 			HeadPackagecmd.ID = Number(1);
 			HeadPackagecmd.Position = Number(document.getElementById("HorizontalPositionValue").value);
 			HeadPackagecmd.Speed = Number(document.getElementById("HorizontalSpeedValue").value);
@@ -791,17 +812,17 @@
 		}
 		function showHorizontalSpeed(newValue) {
 			if (window.event.keyCode == 13) {
-				if (newValue < document.getElementById("HorizontalSpeedRange").min)
+				if (Number(newValue) < Number(document.getElementById("HorizontalSpeedRange").min))
 				{
-					newValue = document.getElementById("HorizontalSpeedRange").min;
-					document.getElementById("HorizontalSpeedValue").value = newValue;
+					newValue = Number(document.getElementById("HorizontalSpeedRange").min);
+					document.getElementById("HorizontalSpeedValue").value = Number(newValue);
 				}
-				else if (newValue > document.getElementById("HorizontalSpeedRange").max)
+				else if (Number(newValue) > Number(document.getElementById("HorizontalSpeedRange").max))
 				{
-					newValue = document.getElementById("HorizontalSpeedRange").max;
-					document.getElementById("HorizontalSpeedValue").value = newValue;
+					newValue = Number(document.getElementById("HorizontalSpeedRange").max);
+					document.getElementById("HorizontalSpeedValue").value = Number(newValue);
 				}
-				document.getElementById("HorizontalSpeedRange").value = newValue;
+				document.getElementById("HorizontalSpeedRange").value = Number(newValue);
 				HeadPackagecmd.ID = Number(1);
 				HeadPackagecmd.Position = Number(document.getElementById("HorizontalPositionValue").value);
 				HeadPackagecmd.Speed = Number(document.getElementById("HorizontalSpeedValue").value);
@@ -809,7 +830,7 @@
 			}
 		}
 		function rangeHorizontalSpeed(newValue) {
-			document.getElementById("HorizontalSpeedValue").value = newValue;
+			document.getElementById("HorizontalSpeedValue").value = Number(newValue);
 			HeadPackagecmd.ID = Number(1);
 			HeadPackagecmd.Position = Number(document.getElementById("HorizontalPositionValue").value);
 			HeadPackagecmd.Speed = Number(document.getElementById("HorizontalSpeedValue").value);
@@ -818,17 +839,17 @@
 
 		function showVerticalPosition(newValue) {
 			if (window.event.keyCode == 13) {
-				if (newValue < document.getElementById("VerticalPositionRange").min)
+				if (Number(newValue) < Number(document.getElementById("VerticalPositionRange").min))
 				{
-					newValue = document.getElementById("VerticalPositionRange").min;
-					document.getElementById("VerticalPositionValue").value = newValue;
+					newValue = Number(document.getElementById("VerticalPositionRange").min);
+					document.getElementById("VerticalPositionValue").value = Number(newValue);
 				}
-				else if (newValue > document.getElementById("VerticalPositionRange").max)
+				else if (Number(newValue) > Number(document.getElementById("VerticalPositionRange").max))
 				{
-					newValue = document.getElementById("VerticalPositionRange").max;
-					document.getElementById("VerticalPositionValue").value = newValue;
+					newValue = Number(document.getElementById("VerticalPositionRange").max);
+					document.getElementById("VerticalPositionValue").value = Number(newValue);
 				}
-				document.getElementById("VerticalPositionRange").value = newValue;
+				document.getElementById("VerticalPositionRange").value = Number(newValue);
 				HeadPackagecmd.ID = Number(2);
 				HeadPackagecmd.Position = Number(document.getElementById("VerticalPositionValue").value);
 				HeadPackagecmd.Speed = Number(document.getElementById("VerticalSpeedValue").value);
@@ -836,7 +857,7 @@
 			}
 		}
 		function rangeVerticalPosition(newValue) {
-			document.getElementById("VerticalPositionValue").value = newValue;
+			document.getElementById("VerticalPositionValue").value = Number(newValue);
 			HeadPackagecmd.ID = Number(2);
 			HeadPackagecmd.Position = Number(document.getElementById("VerticalPositionValue").value);
 			HeadPackagecmd.Speed = Number(document.getElementById("VerticalSpeedValue").value);
@@ -844,17 +865,17 @@
 		}
 		function showVerticalSpeed(newValue) {
 			if (window.event.keyCode == 13) {
-				if (newValue < document.getElementById("VerticalSpeedRange").min)
+				if (Number(newValue) < Number(document.getElementById("VerticalSpeedRange").min))
 				{
-					newValue = document.getElementById("VerticalSpeedRange").min;
-					document.getElementById("VerticalSpeedValue").value = newValue;
+					newValue = Number(document.getElementById("VerticalSpeedRange").min);
+					document.getElementById("VerticalSpeedValue").value = Number(newValue);
 				}
-				else if (newValue > document.getElementById("VerticalSpeedRange").max)
+				else if (Number(newValue) > Number(document.getElementById("VerticalSpeedRange").max))
 				{
-					newValue = document.getElementById("VerticalSpeedRange").max;
-					document.getElementById("VerticalSpeedValue").value = newValue;
+					newValue = Number(document.getElementById("VerticalSpeedRange").max);
+					document.getElementById("VerticalSpeedValue").value = Number(newValue);
 				}
-				document.getElementById("VerticalSpeedRange").value = newValue;
+				document.getElementById("VerticalSpeedRange").value = Number(newValue);
 				HeadPackagecmd.ID = Number(2);
 				HeadPackagecmd.Position = Number(document.getElementById("VerticalPositionValue").value);
 				HeadPackagecmd.Speed = Number(document.getElementById("VerticalSpeedValue").value);
@@ -862,7 +883,7 @@
 			}
 		}
 		function rangeVerticalSpeed(newValue) {
-			document.getElementById("VerticalSpeedValue").value = newValue;
+			document.getElementById("VerticalSpeedValue").value = Number(newValue);
 			HeadPackagecmd.ID = Number(2);
 			HeadPackagecmd.Position = Number(document.getElementById("VerticalPositionValue").value);
 			HeadPackagecmd.Speed = Number(document.getElementById("VerticalSpeedValue").value);
@@ -985,9 +1006,12 @@
 	<br />
 
 	<p id="addressDisplay1" style="color:#F9F900; display:inline; font-size: 20px;">
-		172.17.121.10
+		172.17.121.1
 	</p>
 	<p id="addressDisplay2" style="color:#F9F900; display:none; font-size: 20px;">
+		172.17.121.2
+	</p>
+	<p id="addressDisplay3" style="color:#F9F900; display:none; font-size: 20px;">
 		localhost
 	</p>
 	<p id="connected" style="color:#00D600; display:none; font-size: 20px;">
@@ -1001,7 +1025,8 @@
 				<tr>
 					<td>
 						<select style="height:25px; margin-right: 5px;" id="addressSelect" onchange="changeDisplay()">
-							<option value="172.17.121.10">172.17.121.10</option>
+							<option value="172.17.121.1">172.17.121.1</option>
+							<option value="172.17.121.2">172.17.121.2</option>
 							<option value="localhost">localhost</option>
 						</select>
 					</td>
@@ -1013,10 +1038,10 @@
 		</div>
 		<div id="container" align="center">
 			<div id="div_object_image">
-				<img id="object_image" style="-webkit-user-select: none; display:none;" src="http://172.17.121.10:8080/stream?topic=/vision/object_image">
+				<img id="object_image" style="-webkit-user-select: none; display:none;" src="http://172.17.121.1:8080/stream?topic=/vision/object_image">
 			</div>
 			<div id="div_monitor_image">
-				<img id="monitor_image" style="-webkit-user-select: none; display:none;" src="http://172.17.121.10:8080/stream?topic=/vision/monitor_image">
+				<img id="monitor_image" style="-webkit-user-select: none; display:none;" src="http://172.17.121.1:8080/stream?topic=/vision/monitor_image">
 
 			</div>
 

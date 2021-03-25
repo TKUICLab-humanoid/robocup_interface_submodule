@@ -58,7 +58,7 @@
 	<script type="text/javascript">
 
 		var ros = new ROSLIB.Ros({
-			url: "ws://172.17.121.10:9090"
+			url: "ws://172.17.121.1:9090"
 		});
 		ros.on('connection', function () {
 			console.log('Connection made!');
@@ -208,11 +208,14 @@
 			{
 				switch(document.getElementById("addressSelect").value)
 				{
-					case "172.17.121.10":
+					case "172.17.121.1":
 						document.getElementById("addressSelect").value = "localhost";
 						break;
+					case "172.17.121.2":
+						document.getElementById("addressSelect").value = "172.17.121.1";
+						break;
 					case "localhost":
-						document.getElementById("addressSelect").value = "172.17.121.10";		
+						document.getElementById("addressSelect").value = "172.17.121.2";		
 						break;
 				}
 			}
@@ -220,11 +223,14 @@
 			{
 				switch(document.getElementById("addressSelect").value)
 				{
-					case "172.17.121.10":
+					case "172.17.121.1":
+						document.getElementById("addressSelect").value = "172.17.121.2";
+						break;
+					case "172.17.121.2":
 						document.getElementById("addressSelect").value = "localhost";
 						break;
 					case "localhost":
-						document.getElementById("addressSelect").value = "172.17.121.10";	
+						document.getElementById("addressSelect").value = "172.17.121.1";	
 						break;
 				}
 			}
@@ -235,20 +241,29 @@
 			document.getElementById("addressDisplay1").style.color = "#F9F900";
 			document.getElementById("addressDisplay2").style.display = "none";
 			document.getElementById("addressDisplay2").style.color = "#F9F900";
+			document.getElementById("addressDisplay3").style.display = "none";
+			document.getElementById("addressDisplay3").style.color = "#F9F900";
 			switch(document.getElementById("addressSelect").value)
 			{
-				case "172.17.121.10":
+				case "172.17.121.1":
 					document.getElementById("addressDisplay1").style.display = "inline";
-					if(myAddress == "172.17.121.10" && connectFlag == true)
+					if(myAddress == "172.17.121.1" && connectFlag == true)
 					{
 						document.getElementById("addressDisplay1").style.color = "#00D600";
 					}
 					break;
-				case "localhost":
+				case "172.17.121.2":
 					document.getElementById("addressDisplay2").style.display = "inline";
-					if(myAddress == "localhost" && connectFlag == true)
+					if(myAddress == "172.17.121.2" && connectFlag == true)
 					{
 						document.getElementById("addressDisplay2").style.color = "#00D600";
+					}
+					break;
+				case "localhost":
+					document.getElementById("addressDisplay3").style.display = "inline";
+					if(myAddress == "localhost" && connectFlag == true)
+					{
+						document.getElementById("addressDisplay3").style.color = "#00D600";
 					}
 					break;
 			}
@@ -259,7 +274,7 @@
 		var Wave_Topic = null;
 
 		var connectFlag = false;
-		var myAddress = "172.17.121.10";
+		var myAddress = "172.17.121.1";
 		
 		var Thetavaluetmp = 0;
 		var Xvaluetmp = 0;
@@ -392,11 +407,14 @@
 		function connectFunction() {
 			switch(document.getElementById("addressSelect").value)
 			{
-				case "172.17.121.10":
+				case "172.17.121.1":
 					document.getElementById("addressDisplay1").style.color = "#00D600";
 					break;
-				case "localhost":
+				case "172.17.121.2":
 					document.getElementById("addressDisplay2").style.color = "#00D600";
+					break;
+				case "localhost":
+					document.getElementById("addressDisplay3").style.color = "#00D600";
 					break;
 			}
 			document.getElementById('connected').style.display = 'inline';
@@ -411,11 +429,14 @@
 			document.getElementById('connected').style.display = 'none';
 			switch(document.getElementById("addressSelect").value)
 			{
-				case "172.17.121.10":
+				case "172.17.121.1":
 					document.getElementById("addressDisplay1").style.color = "#F9F900";
 					break;
-				case "localhost":
+				case "172.17.121.2":
 					document.getElementById("addressDisplay2").style.color = "#F9F900";
+					break;
+				case "localhost":
+					document.getElementById("addressDisplay3").style.color = "#F9F900";
 					break;
 			}
 		}
@@ -1745,9 +1766,12 @@
 	<br />
 
 	<p id="addressDisplay1" style="color:#F9F900; display:inline; font-size: 20px;">
-		172.17.121.10
+		172.17.121.1
 	</p>
 	<p id="addressDisplay2" style="color:#F9F900; display:none; font-size: 20px;">
+		172.17.121.2
+	</p>
+	<p id="addressDisplay3" style="color:#F9F900; display:none; font-size: 20px;">
 		localhost
 	</p>
 	<p id="connected" style="color:#00D600; display:none; font-size: 20px;">
@@ -1761,7 +1785,8 @@
 				<tr>
 					<td>
 						<select style="height:25px; margin-right: 5px;" id="addressSelect" onchange="changeDisplay()">
-							<option value="172.17.121.10">172.17.121.10</option>
+							<option value="172.17.121.1">172.17.121.1</option>
+							<option value="172.17.121.2">172.17.121.2</option>
 							<option value="localhost">localhost</option>
 						</select>
 					</td>
