@@ -7,7 +7,7 @@ ros.on('connection', function () {
   createTopics();
   resetfunction();
   document.getElementById('resetButton').disabled = false;
-  document.getElementById('connected').style.display = 'inline';
+  connectFunction();
 });
 ros.on('error', function (error) {
   console.log('Error connecting to websocket server: ', error);
@@ -26,7 +26,7 @@ ros.on('error', function (error) {
   document.getElementById('CopyButton').disabled = true;
   document.getElementById('CheckSumButton').disabled = true;
   document.getElementById('resetButton').disabled = true;
-  document.getElementById('connected').style.display = 'none';
+  disconnectFunction();
 });
 ros.on('close', function () {
   console.log('Connection to websocket server closed.');
@@ -45,7 +45,7 @@ ros.on('close', function () {
   document.getElementById('CopyButton').disabled = true;
   document.getElementById('CheckSumButton').disabled = true;
   document.getElementById('resetButton').disabled = true;
-  document.getElementById('connected').style.display = 'none';
+  disconnectFunction();
 });
 
 var interface = new ROSLIB.Topic({
@@ -81,6 +81,81 @@ var SaveMotionData = new ROSLIB.Message({
     MotionList: [0],
     MotorData: [0]
 });
+
+//-----
+var count = 0;
+
+document.onkeydown = getKeyboard;
+
+function getKeyboard(e) {
+  switch(window.event.keyCode)
+  {
+    case 87:	//W, Select Up
+      count = -1;
+      keyBoardChangeAddress();
+      changeDisplay();
+      break;
+    case 69:	//E, Enter Address
+      enterAddress();
+      break;
+    case 82:	//R, Select Down
+      count = 1;
+      keyBoardChangeAddress();
+      changeDisplay();
+      break;
+  }
+}
+
+function keyBoardChangeAddress() { // I know that this function is stupid beacuse it is written for more addresses.
+  if(count == -1)
+  {
+    switch(document.getElementById("addressSelect").value)
+    {
+      case "172.17.121.10":
+        document.getElementById("addressSelect").value = "localhost";
+        break;
+      case "localhost":
+        document.getElementById("addressSelect").value = "172.17.121.10";		
+        break;
+    }
+  }
+  else if(count == 1)
+  {
+    switch(document.getElementById("addressSelect").value)
+    {
+      case "172.17.121.10":
+        document.getElementById("addressSelect").value = "localhost";
+        break;
+      case "localhost":
+        document.getElementById("addressSelect").value = "172.17.121.10";	
+        break;
+    }
+  }
+}
+
+function changeDisplay() {
+  document.getElementById("addressDisplay1").style.display = "none";
+  document.getElementById("addressDisplay1").style.color = "#F9F900";
+  document.getElementById("addressDisplay2").style.display = "none";
+  document.getElementById("addressDisplay2").style.color = "#F9F900";
+  switch(document.getElementById("addressSelect").value)
+  {
+    case "172.17.121.10":
+      document.getElementById("addressDisplay1").style.display = "inline";
+      if(myAddress == "172.17.121.10" && connectFlag == true)
+      {
+        document.getElementById("addressDisplay1").style.color = "#00D600";
+      }
+      break;
+    case "localhost":
+      document.getElementById("addressDisplay2").style.display = "inline";
+      if(myAddress == "localhost" && connectFlag == true)
+      {
+        document.getElementById("addressDisplay2").style.color = "#00D600";
+      }
+      break;
+  }
+}
 
 //-----
 var SendPackageCallBack = null;
@@ -189,6 +264,37 @@ function enterAddress()
   myAddress = document.getElementById("addressSelect").value;
   console.log("Connecting address is", myAddress);
   ros.connect("ws://" + myAddress + ":9090");
+}
+
+function connectFunction() {
+  switch(document.getElementById("addressSelect").value)
+  {
+    case "172.17.121.10":
+      document.getElementById("addressDisplay1").style.color = "#00D600";
+      break;
+    case "localhost":
+      document.getElementById("addressDisplay2").style.color = "#00D600";
+      break;
+  }
+  document.getElementById('connected').style.display = 'inline';
+}
+
+function disconnectFunction() {
+  if(connectFlag)
+  {
+    ros.close();
+    connectFlag = false;
+  }
+  document.getElementById('connected').style.display = 'none';
+  switch(document.getElementById("addressSelect").value)
+  {
+    case "172.17.121.10":
+      document.getElementById("addressDisplay1").style.color = "#F9F900";
+      break;
+    case "localhost":
+      document.getElementById("addressDisplay2").style.color = "#F9F900";
+      break;
+  }
 }
 
 function sleep(ms)

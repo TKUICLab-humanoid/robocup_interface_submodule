@@ -19,20 +19,16 @@
 		ros.on('connection', function () {
 			console.log('Connection made!');
 			connectFlag = true;
-			document.getElementById('connected').style.display = 'inline';
-			document.getElementById("object_image").style.display = 'inline';
-			document.getElementById("monitor_image").style.display = 'inline';
+			connectFunction();
 		});
 		ros.on('error', function (error) {
 			console.log('Error connecting to websocket server: ', error);
-			document.getElementById('connected').style.display = 'none';
+			disconnectFunction();
 		});
 		ros.on('close', function () {
 			console.log('Connection to websocket server closed.');
 			B_Measure_Flag = true;
-			document.getElementById("monitor_image").style.display = 'none';
-			document.getElementById("object_image").style.display = 'none';
-			document.getElementById('connected').style.display = 'none';
+			disconnectFunction();
 		});
 
 		var ColorModelForm_Topic = new ROSLIB.Topic({
@@ -139,6 +135,81 @@
 		});
 
 		//-----
+		var count = 0;
+
+		document.onkeydown = getKeyboard;
+
+		function getKeyboard(e) {
+			switch(window.event.keyCode)
+			{
+				case 87:	//W, Select Up
+					count = -1;
+					keyBoardChangeAddress();
+					changeDisplay();
+					break;
+				case 69:	//E, Enter Address
+					enterAddress();
+					break;
+				case 82:	//R, Select Down
+					count = 1;
+					keyBoardChangeAddress();
+					changeDisplay();
+					break;
+			}
+		}
+
+		function keyBoardChangeAddress() { // I know that this function is stupid beacuse it is written for more addresses.
+			if(count == -1)
+			{
+				switch(document.getElementById("addressSelect").value)
+				{
+					case "172.17.121.10":
+						document.getElementById("addressSelect").value = "localhost";
+						break;
+					case "localhost":
+						document.getElementById("addressSelect").value = "172.17.121.10";		
+						break;
+				}
+			}
+			else if(count == 1)
+			{
+				switch(document.getElementById("addressSelect").value)
+				{
+					case "172.17.121.10":
+						document.getElementById("addressSelect").value = "localhost";
+						break;
+					case "localhost":
+						document.getElementById("addressSelect").value = "172.17.121.10";	
+						break;
+				}
+			}
+		}
+
+		function changeDisplay() {
+			document.getElementById("addressDisplay1").style.display = "none";
+			document.getElementById("addressDisplay1").style.color = "#F9F900";
+			document.getElementById("addressDisplay2").style.display = "none";
+			document.getElementById("addressDisplay2").style.color = "#F9F900";
+			switch(document.getElementById("addressSelect").value)
+			{
+				case "172.17.121.10":
+					document.getElementById("addressDisplay1").style.display = "inline";
+					if(myAddress == "172.17.121.10" && connectFlag == true)
+					{
+						document.getElementById("addressDisplay1").style.color = "#00D600";
+					}
+					break;
+				case "localhost":
+					document.getElementById("addressDisplay2").style.display = "inline";
+					if(myAddress == "localhost" && connectFlag == true)
+					{
+						document.getElementById("addressDisplay2").style.color = "#00D600";
+					}
+					break;
+			}
+		}
+
+		//-----
 		var connectFlag = false;
 		var myAddress = "172.17.121.10";
 
@@ -173,6 +244,41 @@
 			ros.connect("ws://" + myAddress + ":9090");
 			document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/object_image";
 			document.getElementById("monitor_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/monitor_image";
+		}
+
+		function connectFunction() {
+			switch(document.getElementById("addressSelect").value)
+			{
+				case "172.17.121.10":
+					document.getElementById("addressDisplay1").style.color = "#00D600";
+					break;
+				case "localhost":
+					document.getElementById("addressDisplay2").style.color = "#00D600";
+					break;
+			}
+			document.getElementById('connected').style.display = 'inline';
+			document.getElementById("object_image").style.display = 'inline';
+			document.getElementById("monitor_image").style.display = 'inline';
+		}
+
+		function disconnectFunction() {
+			if(connectFlag)
+			{
+				ros.close();
+				connectFlag = false;
+			}
+			document.getElementById("monitor_image").style.display = 'none';
+			document.getElementById("object_image").style.display = 'none';
+			document.getElementById('connected').style.display = 'none';
+			switch(document.getElementById("addressSelect").value)
+			{
+				case "172.17.121.10":
+					document.getElementById("addressDisplay1").style.color = "#F9F900";
+					break;
+				case "localhost":
+					document.getElementById("addressDisplay2").style.color = "#F9F900";
+					break;
+			}
 		}
 
 		function ResetColorModelFunction() {
@@ -336,7 +442,6 @@
 			}
 		}
 		function changeColorLabel(newValue) {
-			console.log(newValue);
 			HSVreqrest.ColorLabel = Number(newValue);
 			HSVClient.callService(HSVreqrest, function (HSVresult) {
 				document.getElementById("HminRange").value = HSVresult.Hmin;
@@ -657,14 +762,26 @@
 				WebStart_Topic.publish(WebStartcmd);
 			}
 		}
-		function showHorizontalPosition(newValue) {
-			document.getElementById("HorizontalPositionValue").value = newValue;
-			HeadPackagecmd.ID = Number(1);
-			HeadPackagecmd.Position = Number(document.getElementById("HorizontalPositionValue").value);
-			HeadPackagecmd.Speed = Number(document.getElementById("HorizontalSpeedValue").value);
-			Head_Topic.publish(HeadPackagecmd);
-		}
 
+		function showHorizontalPosition(newValue) {
+			if (window.event.keyCode == 13) {
+				if (newValue < document.getElementById("HorizontalPositionRange").min)
+				{
+					newValue = document.getElementById("HorizontalPositionRange").min;
+					document.getElementById("HorizontalPositionValue").value = newValue;
+				}
+				else if (newValue > document.getElementById("HorizontalPositionRange").max)
+				{
+					newValue = document.getElementById("HorizontalPositionRange").max;
+					document.getElementById("HorizontalPositionValue").value = newValue;
+				}
+				document.getElementById("HorizontalPositionRange").value = newValue;
+				HeadPackagecmd.ID = Number(1);
+				HeadPackagecmd.Position = Number(document.getElementById("HorizontalPositionValue").value);
+				HeadPackagecmd.Speed = Number(document.getElementById("HorizontalSpeedValue").value);
+				Head_Topic.publish(HeadPackagecmd);
+			}
+		}
 		function rangeHorizontalPosition(newValue) {
 			document.getElementById("HorizontalPositionValue").value = newValue;
 			HeadPackagecmd.ID = Number(1);
@@ -673,6 +790,25 @@
 			Head_Topic.publish(HeadPackagecmd);
 		}
 		function showHorizontalSpeed(newValue) {
+			if (window.event.keyCode == 13) {
+				if (newValue < document.getElementById("HorizontalSpeedRange").min)
+				{
+					newValue = document.getElementById("HorizontalSpeedRange").min;
+					document.getElementById("HorizontalSpeedValue").value = newValue;
+				}
+				else if (newValue > document.getElementById("HorizontalSpeedRange").max)
+				{
+					newValue = document.getElementById("HorizontalSpeedRange").max;
+					document.getElementById("HorizontalSpeedValue").value = newValue;
+				}
+				document.getElementById("HorizontalSpeedRange").value = newValue;
+				HeadPackagecmd.ID = Number(1);
+				HeadPackagecmd.Position = Number(document.getElementById("HorizontalPositionValue").value);
+				HeadPackagecmd.Speed = Number(document.getElementById("HorizontalSpeedValue").value);
+				Head_Topic.publish(HeadPackagecmd);
+			}
+		}
+		function rangeHorizontalSpeed(newValue) {
 			document.getElementById("HorizontalSpeedValue").value = newValue;
 			HeadPackagecmd.ID = Number(1);
 			HeadPackagecmd.Position = Number(document.getElementById("HorizontalPositionValue").value);
@@ -680,21 +816,25 @@
 			Head_Topic.publish(HeadPackagecmd);
 		}
 
-		function rangeHorizontalSpeed(newValue) {
-			document.getElementById("HorizontalSpeedValue").value = newValue;
-			HeadPackagecmd.ID = Number(1);
-			HeadPackagecmd.Position = Number(document.getElementById("HorizontalPositionValue").value);
-			HeadPackagecmd.Speed = Number(document.getElementById("HorizontalSpeedValue").valutde);
-			Head_Topic.publish(HeadPackagecmd);
-		}
 		function showVerticalPosition(newValue) {
-			document.getElementById("VerticalPositionValue").value = newValue;
-			HeadPackagecmd.ID = Number(2);
-			HeadPackagecmd.Position = Number(document.getElementById("VerticalPositionValue").value);
-			HeadPackagecmd.Speed = Number(document.getElementById("VerticalSpeedValue").value);
-			Head_Topic.publish(HeadPackagecmd);
+			if (window.event.keyCode == 13) {
+				if (newValue < document.getElementById("VerticalPositionRange").min)
+				{
+					newValue = document.getElementById("VerticalPositionRange").min;
+					document.getElementById("VerticalPositionValue").value = newValue;
+				}
+				else if (newValue > document.getElementById("VerticalPositionRange").max)
+				{
+					newValue = document.getElementById("VerticalPositionRange").max;
+					document.getElementById("VerticalPositionValue").value = newValue;
+				}
+				document.getElementById("VerticalPositionRange").value = newValue;
+				HeadPackagecmd.ID = Number(2);
+				HeadPackagecmd.Position = Number(document.getElementById("VerticalPositionValue").value);
+				HeadPackagecmd.Speed = Number(document.getElementById("VerticalSpeedValue").value);
+				Head_Topic.publish(HeadPackagecmd);
+			}
 		}
-
 		function rangeVerticalPosition(newValue) {
 			document.getElementById("VerticalPositionValue").value = newValue;
 			HeadPackagecmd.ID = Number(2);
@@ -703,14 +843,24 @@
 			Head_Topic.publish(HeadPackagecmd);
 		}
 		function showVerticalSpeed(newValue) {
-			document.getElementById("VerticalSpeedValue").value = newValue;
-			HeadPackagecmd.ID = Number(2);
-			HeadPackagecmd.Position = Number(document.getElementById("VerticalPositionValue").value);
-			HeadPackagecmd.Speed = Number(document.getElementById("VerticalSpeedValue").value);
-			Head_Topic.publish(HeadPackagecmd);
-
+			if (window.event.keyCode == 13) {
+				if (newValue < document.getElementById("VerticalSpeedRange").min)
+				{
+					newValue = document.getElementById("VerticalSpeedRange").min;
+					document.getElementById("VerticalSpeedValue").value = newValue;
+				}
+				else if (newValue > document.getElementById("VerticalSpeedRange").max)
+				{
+					newValue = document.getElementById("VerticalSpeedRange").max;
+					document.getElementById("VerticalSpeedValue").value = newValue;
+				}
+				document.getElementById("VerticalSpeedRange").value = newValue;
+				HeadPackagecmd.ID = Number(2);
+				HeadPackagecmd.Position = Number(document.getElementById("VerticalPositionValue").value);
+				HeadPackagecmd.Speed = Number(document.getElementById("VerticalSpeedValue").value);
+				Head_Topic.publish(HeadPackagecmd);
+			}
 		}
-
 		function rangeVerticalSpeed(newValue) {
 			document.getElementById("VerticalSpeedValue").value = newValue;
 			HeadPackagecmd.ID = Number(2);
@@ -718,6 +868,7 @@
 			HeadPackagecmd.Speed = Number(document.getElementById("VerticalSpeedValue").value);
 			Head_Topic.publish(HeadPackagecmd);
 		}
+
 		function changeCamera() {
 			CameraId_msg.data = Number(document.getElementById("Camera_Select").value);
 			CameraId_Topic.publish(CameraId_msg);
@@ -832,16 +983,24 @@
 		</li>
 	</ul>
 	<br />
-	<p id="connected" style="color:#00D600; display:none; font-size: 20px;">
-		Connected
+
+	<p id="addressDisplay1" style="color:#F9F900; display:inline; font-size: 20px;">
+		172.17.121.10
 	</p>
+	<p id="addressDisplay2" style="color:#F9F900; display:none; font-size: 20px;">
+		localhost
+	</p>
+	<p id="connected" style="color:#00D600; display:none; font-size: 20px;">
+		&nbspConnected
+	</p>
+
 	<form>
 		<div id="head" align="center">
 			<h1 id="header">Humanoid Interface</h1>
 			<table>
 				<tr>
 					<td>
-						<select style="height:25px; margin-right: 5px;" id="addressSelect">
+						<select style="height:25px; margin-right: 5px;" id="addressSelect" onchange="changeDisplay()">
 							<option value="172.17.121.10">172.17.121.10</option>
 							<option value="localhost">localhost</option>
 						</select>
@@ -969,12 +1128,12 @@
 							</td>
 						</tr>
 						<tr>
-							<td rowspan="2"><input type="text" class="ValueText" id="HorizontalPositionValue" size="12" value="2048" onchange="rangeHorizontalPosition(this.value)" /></td>
-							<td><input class="Range" id="HorizontalPositionRange" name="HorizontalPositionRange" type="range" min="0" max="4095" value="2048" oninput="showHorizontalPosition(this.value)"/></td>
-							<td rowspan="2"><input type="text" class="ValueText" id="HorizontalSpeedValue" size="12" value="1" onchange="rangeHorizontalSpeed(this.value)" /></td>
+							<td rowspan="2"><input type="text" class="ValueText" id="HorizontalPositionValue" size="12" maxlength="4" value="2048" onkeydown="showHorizontalPosition(this.value)" /></td>
+							<td><input class="Range" id="HorizontalPositionRange" name="HorizontalPositionRange" type="range" min="0" max="4095" value="2048" oninput="rangeHorizontalPosition(this.value)" /></td>
+							<td rowspan="2"><input type="text" class="ValueText" id="HorizontalSpeedValue" size="12" maxlength="4" value="1" onkeydown="showHorizontalSpeed(this.value)" /></td>
 						</tr>
 						<tr>
-							<td><input class="Range" id="HorizontalSpeedRange" name="HorizontalSpeedRange" type="range" min="1" max="9999" value="1" oninput="showHorizontalSpeed(this.value)"/></td>
+							<td><input class="Range" id="HorizontalSpeedRange" name="HorizontalSpeedRange" type="range" min="1" max="9999" value="1" oninput="rangeHorizontalSpeed(this.value)" /></td>
 						</tr>
 						<tr>
 							<td colspan="3">
@@ -982,26 +1141,24 @@
 							</td>
 						</tr>
 						<tr>
-							<td rowspan="2"><input type="text" class="ValueText" id="VerticalPositionValue" size="12" value="2048" onchange="rangeVerticalPosition(this.value)" /></td>
-							<td><input class="Range" id="VerticalPositionRange" name="VerticalPositionRange" type="range" min="0" max="4095" value="2048" oninput="showVerticalPosition(this.value)" /></td>
-							<td rowspan="2"><input type="text" class="ValueText" id="VerticalSpeedValue" size="12" value="1" onchange="rangeVerticalSpeed(this.value)" /></td>
+							<td rowspan="2"><input type="text" class="ValueText" id="VerticalPositionValue" size="12" maxlength="4" value="2048" onkeydown="showVerticalPosition(this.value)" /></td>
+							<td><input class="Range" id="VerticalPositionRange" name="VerticalPositionRange" type="range" min="0" max="4095" value="2048" oninput="rangeVerticalPosition(this.value)" /></td>
+							<td rowspan="2"><input type="text" class="ValueText" id="VerticalSpeedValue" size="12" maxlength="4" value="1" onkeydown="showVerticalSpeed(this.value)" /></td>
 						</tr>
 						<tr>
-							<td><input class="Range" id="VerticalSpeedRange" name="VerticalSpeedRange" type="range" min="1" max="9999" value="1" oninput="showVerticalSpeed(this.value)" /></td>
+							<td><input class="Range" id="VerticalSpeedRange" name="VerticalSpeedRange" type="range" min="1" max="9999" value="1" oninput="rangeVerticalSpeed(this.value)" /></td>
 						</tr>
 					</table>
 				</div>
 				<div id="Camera">
 					<div style="float:left; margin-left:8px;">
-						<input type="checkbox" name="AutoWhitBlance" id="AutoWhitBlance" onclick="changeAutoWhitBlance()">Auto
-						White_blance
+						<input type="checkbox" name="AutoWhitBlance" id="AutoWhitBlance" onclick="changeAutoWhitBlance()">Auto White_blance
 					</div>
 					<div style="float:right; margin-right:12px;">
 						<input type="checkbox" name="AutoExposure" id="AutoExposure" onclick="changeAutoExposure()">Auto Exposure
 					</div>
 					<div style="float:left; margin-left:8px;">
-						<input type="checkbox" name="AutoBacklightCompensation" id="AutoBacklightCompensation" onclick="changeAutoBacklightCompensation()">Auto
-						Backlight Compensation
+						<input type="checkbox" name="AutoBacklightCompensation" id="AutoBacklightCompensation" onclick="changeAutoBacklightCompensation()">Auto Backlight Compensation
 					</div>
 					<table width="320">
 						<tr>
