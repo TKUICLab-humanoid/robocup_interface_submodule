@@ -14,21 +14,21 @@
 		<script language="javascript">
 
 			var ros = new ROSLIB.Ros({
-			url: "ws://localhost:9090"
+			url: "ws://172.17.121.1:9090"
 			});
 			ros.on('connection', function () {
 				console.log('Connection made!');
 				connectFlag = true;
 				createTopics();
-				document.getElementById('connected').style.display = 'inline';
+				connectFunction();
 			});
 			ros.on('error', function (error) {
 				console.log('Error connecting to websocket server: ', error);
-				document.getElementById('connected').style.display = 'none';
+				disconnectFunction();
 			});
 			ros.on('close', function () {
 				console.log('Connection to websocket server closed.');
-				document.getElementById('connected').style.display = 'none';
+				disconnectFunction();
 			});
 
 			//start and data send
@@ -68,285 +68,18 @@
 			});
 
 			//-----
-			var robot_pos_Subscriber = null;
-
-			var connectFlag = false;
-			var myAddress = "172.17.121.10";
-
-			var RobotArray = [];
-			var Robot_cnt = 4;
-			var Robot_flag = [];
-			var setrobot_flag = false;
-			var GoalPointArray = [];
-			var GoalPoint_flag = [];
-			var setgoalpoint_flag = false;
+			var keycode = 0;
 			var getKeyboard_flag = false;
-			var ObsArray = [];
-			var ObsArraycnt = 0;
-			var PathPoint = [];
-			var PathPointcnt = 0;
-			var findobs = false;
-			var findpoint = false;
-			var tmpObsArraycnt = 0;
-			var tmpPathPointcnt = 0;
-			var DegtoRad = Math.PI / 180;
-			document.captureEvents(Event.MOUSEDOWN)
+			var tempX = 0;
+			var tempY = 0;
+			var count = 0;
+
+			// document.captureEvents(Event.MOUSEDOWN)
 			document.onmousedown = getMouseXY;
-			//document.onmousemove = moveMouseXY;
 			document.onmouseup = upMouseXY;
 			document.onkeydown = getKeyboard;
-			document.onkeyup = KeyboardUp;
-			var tempX = 0
-			var tempY = 0
-			var tmpvalue = 0
-			var keycode;
+			document.onkeyup = upKeyboard;
 
-			function createTopics()
-			{
-				if(robot_pos_Subscriber != null)
-				{
-					robot_pos_Subscriber.unsubscribe();
-				}
-				robot_pos_Subscriber = new ROSLIB.Topic({
-				ros: ros,
-				name: '/localization/robotpos',
-				messageType: 'tku_msgs/RobotPos'
-				});
-				robot_pos_Subscriber.subscribe(function (msg)
-				{
-					RobotArray[0][0] = msg.x;
-					RobotArray[0][1] = msg.y;
-					RobotArray[0][2] = msg.dir;
-					Robot_flag[0] = true;
-					drawField();
-				});
-			}
-
-			function enterAddress()
-			{
-				if(connectFlag)
-				{
-					ros.close();
-					connectFlag = false;
-				}
-				myAddress = document.getElementById("addressSelect").value;
-				console.log("Connecting address is", myAddress)
-				ros.connect("ws://" + myAddress + ":9090");
-			}
-
-			function init() 
-			{
-				console.log("init");
-				drawField();
-				for(i = 0; i < 4; i++)
-				{
-					RobotArray[i] = [];
-					RobotArray[i][0] = 0;
-					RobotArray[i][1] = 0;
-					RobotArray[i][2] = 0;
-					Robot_flag[i] = false;
-					GoalPointArray[i] = [];
-					GoalPointArray[i][0] = 0;
-					GoalPointArray[i][1] = 0;
-					GoalPoint_flag[i] = false;
-				}
-			};
-			function drawField() 
-			{
-				var canvas = document.getElementById("SoccerFiled");
-				if (canvas.getContext)      //檢查有無支援canvas
-				{
-					var context = canvas.getContext("2d");
-
-					context.clearRect(0, 0, 1100, 800);
-					context.strokeStyle = '#ffffff';
-					context.lineWidth = 5.5;
-					// context.strokeRect(70, 70, 900, 600);
-					// context.strokeRect(4, 237, 65, 265);
-					// context.strokeRect(971, 237, 65, 265);
-					// context.strokeRect(71, 120, 100, 500);
-					// context.strokeRect(869, 120, 100, 500);
-
-					context.strokeRect(102, 102, 900, 600);
-					context.strokeRect(42, 268, 60, 265);
-					context.strokeRect(1002, 268, 60, 265);
-					context.strokeRect(102, 152, 200, 500);
-					context.strokeRect(802, 152, 200, 500);
-					context.strokeRect(102, 252, 100, 300);
-					context.strokeRect(902, 252, 100, 300);
-
-					/*context.beginPath();
-					context.moveTo(520, 70);
-					context.lineTo(520, 670);
-					context.stroke();
-
-					context.beginPath();
-					context.moveTo(220, 365);
-					context.lineTo(220, 375);
-					context.stroke();
-					context.beginPath();
-					context.moveTo(215, 370);
-					context.lineTo(225, 370);
-					context.stroke();
-
-					context.beginPath();
-					context.moveTo(520, 365);
-					context.lineTo(520, 375);
-					context.stroke();
-					context.beginPath();
-					context.moveTo(515, 370);
-					context.lineTo(525, 370);
-					context.stroke();
-
-					context.beginPath();
-					context.moveTo(820, 365);
-					context.lineTo(820, 375);
-					context.stroke();
-					context.beginPath();
-					context.moveTo(815, 370);
-					context.lineTo(825, 370);
-					context.stroke();
-
-					context.beginPath();
-					context.arc(520, 370, 75, 0, 2 * Math.PI);
-					context.stroke();*/
-					context.beginPath();
-					context.moveTo(550, 102);
-					context.lineTo(550, 698);
-					context.stroke();
-
-					context.beginPath();
-					context.moveTo(542, 400);
-					context.lineTo(558, 400);
-					context.stroke();
-
-					context.beginPath();
-					context.moveTo(250, 392);
-					context.lineTo(250, 408);
-					context.stroke();
-					context.beginPath();
-					context.moveTo(242, 400);
-					context.lineTo(258, 400);
-					context.stroke();
-
-					context.beginPath();
-					context.moveTo(850, 392);
-					context.lineTo(850, 408);
-					context.stroke();
-					context.beginPath();
-					context.moveTo(842, 400);
-					context.lineTo(858, 400);
-					context.stroke();
-
-					context.beginPath();
-					context.arc(550, 400, 75, 0, 2 * Math.PI);
-					context.stroke();
-				}
-				drawRobot();
-				drawGoalPoint();
-			};
-			function drawRobot()
-			{
-				var canvas = document.getElementById("SoccerFiled");
-				if(canvas.getContext) 
-				{
-					var context = canvas.getContext("2d");
-				}
-				//drawField();
-				for(i = 0; i < Robot_cnt; i++)
-				{
-					if(Robot_flag[i])
-					{
-						context.beginPath();
-						context.lineWidth = 3;
-						switch (i) 
-						{
-							case 0:
-								context.fillStyle = 'blue';
-								context.strokeStyle = 'blue';
-								break;
-							case 1:
-								context.fillStyle = 'chocolate';
-								context.strokeStyle = 'chocolate';
-								break;
-							case 2:
-								context.fillStyle = 'yellow';
-								context.strokeStyle = 'yellow';
-								break;
-							case 3:
-								context.fillStyle = 'black';
-								context.strokeStyle = 'black';
-								break;
-						}
-						context.arc(RobotArray[i][0], RobotArray[i][1], 11, 0, Math.PI * 2);
-						context.stroke();
-						context.beginPath();
-						switch (i) 
-						{
-							case 0:
-								context.strokeStyle = 'blue';
-								break;
-							case 1:
-								context.strokeStyle = 'pink';
-								break;
-							case 2:
-								context.strokeStyle = 'chocolate';
-								break;
-							case 3:
-								context.strokeStyle = 'black';
-								break;
-						}
-						context.lineWidth = 1;
-						console.log(RobotArray[i][0]);
-						console.log(RobotArray[i][1]);
-						console.log(RobotArray[i][2]);
-						context.moveTo(RobotArray[i][0], RobotArray[i][1]);
-						context.lineTo(RobotArray[i][0] + 15 * Math.cos(RobotArray[i][2] * DegtoRad), RobotArray[i][1] - 15 * Math.sin(RobotArray[i][2] * DegtoRad));
-						context.stroke();
-					}
-				}
-			};
-			function drawGoalPoint()
-			{
-				var canvas = document.getElementById("SoccerFiled");
-				if (canvas.getContext) 
-				{
-					var context = canvas.getContext("2d");
-				}
-				for (i = 0; i < Robot_cnt; i++) 
-				{
-					if (GoalPoint_flag[i]) 
-					{
-						context.beginPath();
-						context.lineWidth = 3;
-						switch (i) 
-						{
-							case 0:
-								context.fillStyle = 'blue';
-								context.strokeStyle = 'blue';
-								break;
-							case 1:
-								context.fillStyle = 'chocolate';
-								context.strokeStyle = 'chocolate';
-								break;
-							case 2:
-								context.fillStyle = 'yellow';
-								context.strokeStyle = 'yellow';
-								break;
-							case 3:
-								context.fillStyle = 'black';
-								context.strokeStyle = 'black';
-								break;
-						}
-						context.arc(GoalPointArray[i][0], GoalPointArray[i][1], 3, 0, Math.PI * 2);
-						context.stroke();
-					}
-				}
-			}
-			function upMouseXY(e) {
-				keycode = 0;
-				//console.log(PathPoint);
-			};
 			function getMouseXY(e) 
 			{
 				var offsetLeft = document.getElementById('SoccerFiled').offsetLeft
@@ -481,28 +214,415 @@
 					}
 				}
 			}
+
+			function upMouseXY(e)
+			{
+				keycode = 0;
+			}
+
 			function getKeyboard(e)
 			{		
-				getKeyboard_flag = true;
-				switch(event.which || event.keyCode)
+				switch(window.event.keyCode)
 				{
 					case 49:	//1, First Robot
+						getKeyboard_flag = true;
 						keycode = 49;
 						break;
 					case 50:	//2, Second Robot
+						getKeyboard_flag = true;
 						keycode = 50;
 						break;
 					case 51:	//3, Third Robot
+						getKeyboard_flag = true;
 						keycode = 51;
 						break;
 					case 52:	//4, Forth Robot
+						getKeyboard_flag = true;
 						keycode = 52;
+						break;
+					case 87:	//W, Select Up
+						count = -1;
+						keyBoardChangeAddress();
+						changeDisplay();
+						break;
+					case 69:	//E, Enter Address
+						enterAddress();
+						break;
+					case 82:	//R, Select Down
+						count = 1;
+						keyBoardChangeAddress();
+						changeDisplay();
 						break;
 				}
 			}
-			function KeyboardUp(e)
+
+			function upKeyboard(e)
 			{
 				keycode = 0;
+			}
+
+			function keyBoardChangeAddress() { // I know that this function is stupid beacuse it is written for more addresses.
+				if(count == -1)
+				{
+					switch(document.getElementById("addressSelect").value)
+					{
+						case "172.17.121.1":
+							document.getElementById("addressSelect").value = "localhost";
+							break;
+						case "172.17.121.2":
+							document.getElementById("addressSelect").value = "172.17.121.1";
+							break;
+						case "localhost":
+							document.getElementById("addressSelect").value = "172.17.121.2";		
+							break;
+					}
+				}
+				else if(count == 1)
+				{
+					switch(document.getElementById("addressSelect").value)
+					{
+						case "172.17.121.1":
+							document.getElementById("addressSelect").value = "172.17.121.2";
+							break;
+						case "172.17.121.2":
+							document.getElementById("addressSelect").value = "localhost";
+							break;
+						case "localhost":
+							document.getElementById("addressSelect").value = "172.17.121.1";	
+							break;
+					}
+				}
+			}
+
+			function changeDisplay() {
+				document.getElementById("addressDisplay1").style.display = "none";
+				document.getElementById("addressDisplay1").style.color = "#F9F900";
+				document.getElementById("addressDisplay2").style.display = "none";
+				document.getElementById("addressDisplay2").style.color = "#F9F900";
+				document.getElementById("addressDisplay3").style.display = "none";
+				document.getElementById("addressDisplay3").style.color = "#F9F900";
+				switch(document.getElementById("addressSelect").value)
+				{
+					case "172.17.121.1":
+						document.getElementById("addressDisplay1").style.display = "inline";
+						if(myAddress == "172.17.121.1" && connectFlag == true)
+						{
+							document.getElementById("addressDisplay1").style.color = "#00D600";
+						}
+						break;
+					case "172.17.121.2":
+						document.getElementById("addressDisplay2").style.display = "inline";
+						if(myAddress == "172.17.121.2" && connectFlag == true)
+						{
+							document.getElementById("addressDisplay2").style.color = "#00D600";
+						}
+						break;
+					case "localhost":
+						document.getElementById("addressDisplay3").style.display = "inline";
+						if(myAddress == "localhost" && connectFlag == true)
+						{
+							document.getElementById("addressDisplay3").style.color = "#00D600";
+						}
+						break;
+				}
+			}
+
+			//-----
+			var robot_pos_Subscriber = null;
+
+			var connectFlag = false;
+			var myAddress = "172.17.121.1";
+
+			var RobotArray = [];
+			var Robot_cnt = 4;
+			var Robot_flag = [];
+			var setrobot_flag = false;
+			var GoalPointArray = [];
+			var GoalPoint_flag = [];
+			var setgoalpoint_flag = false;
+			var DegtoRad = Math.PI / 180;
+
+			function createTopics()
+			{
+				if(robot_pos_Subscriber != null)
+				{
+					robot_pos_Subscriber.unsubscribe();
+				}
+				robot_pos_Subscriber = new ROSLIB.Topic({
+				ros: ros,
+				name: '/localization/robotpos',
+				messageType: 'tku_msgs/RobotPos'
+				});
+				robot_pos_Subscriber.subscribe(function (msg)
+				{
+					RobotArray[0][0] = msg.x;
+					RobotArray[0][1] = msg.y;
+					RobotArray[0][2] = msg.dir;
+					Robot_flag[0] = true;
+					drawField();
+				});
+			}
+
+			function enterAddress()
+			{
+				if(connectFlag)
+				{
+					ros.close();
+					connectFlag = false;
+				}
+				myAddress = document.getElementById("addressSelect").value;
+				console.log("Connecting address is", myAddress)
+				ros.connect("ws://" + myAddress + ":9090");
+			}
+
+			function connectFunction() {
+				switch(document.getElementById("addressSelect").value)
+				{
+					case "172.17.121.1":
+						document.getElementById("addressDisplay1").style.color = "#00D600";
+						break;
+					case "172.17.121.2":
+						document.getElementById("addressDisplay2").style.color = "#00D600";
+						break;
+					case "localhost":
+						document.getElementById("addressDisplay3").style.color = "#00D600";
+						break;
+				}
+				document.getElementById('connected').style.display = 'inline';
+			}
+
+			function disconnectFunction() {
+				if(connectFlag)
+				{
+					ros.close();
+					connectFlag = false;
+				}
+				document.getElementById('connected').style.display = 'none';
+				switch(document.getElementById("addressSelect").value)
+				{
+					case "172.17.121.1":
+						document.getElementById("addressDisplay1").style.color = "#F9F900";
+						break;
+					case "172.17.121.2":
+						document.getElementById("addressDisplay2").style.color = "#F9F900";
+						break;
+					case "localhost":
+						document.getElementById("addressDisplay3").style.color = "#F9F900";
+						break;
+				}
+			}
+
+			function init() 
+			{
+				console.log("init");
+				drawField();
+				for(i = 0; i < 4; i++)
+				{
+					RobotArray[i] = [];
+					RobotArray[i][0] = 0;
+					RobotArray[i][1] = 0;
+					RobotArray[i][2] = 0;
+					Robot_flag[i] = false;
+					GoalPointArray[i] = [];
+					GoalPointArray[i][0] = 0;
+					GoalPointArray[i][1] = 0;
+					GoalPoint_flag[i] = false;
+				}
+			}
+
+			function drawField() 
+			{
+				var canvas = document.getElementById("SoccerFiled");
+				if (canvas.getContext)      //檢查有無支援canvas
+				{
+					var context = canvas.getContext("2d");
+
+					context.clearRect(0, 0, 1100, 800);
+					context.strokeStyle = '#ffffff';
+					context.lineWidth = 5.5;
+					// context.strokeRect(70, 70, 900, 600);
+					// context.strokeRect(4, 237, 65, 265);
+					// context.strokeRect(971, 237, 65, 265);
+					// context.strokeRect(71, 120, 100, 500);
+					// context.strokeRect(869, 120, 100, 500);
+
+					context.strokeRect(102, 102, 900, 600);
+					context.strokeRect(42, 268, 60, 265);
+					context.strokeRect(1002, 268, 60, 265);
+					context.strokeRect(102, 152, 200, 500);
+					context.strokeRect(802, 152, 200, 500);
+					context.strokeRect(102, 252, 100, 300);
+					context.strokeRect(902, 252, 100, 300);
+
+					/*context.beginPath();
+					context.moveTo(520, 70);
+					context.lineTo(520, 670);
+					context.stroke();
+
+					context.beginPath();
+					context.moveTo(220, 365);
+					context.lineTo(220, 375);
+					context.stroke();
+					context.beginPath();
+					context.moveTo(215, 370);
+					context.lineTo(225, 370);
+					context.stroke();
+
+					context.beginPath();
+					context.moveTo(520, 365);
+					context.lineTo(520, 375);
+					context.stroke();
+					context.beginPath();
+					context.moveTo(515, 370);
+					context.lineTo(525, 370);
+					context.stroke();
+
+					context.beginPath();
+					context.moveTo(820, 365);
+					context.lineTo(820, 375);
+					context.stroke();
+					context.beginPath();
+					context.moveTo(815, 370);
+					context.lineTo(825, 370);
+					context.stroke();
+
+					context.beginPath();
+					context.arc(520, 370, 75, 0, 2 * Math.PI);
+					context.stroke();*/
+					context.beginPath();
+					context.moveTo(550, 102);
+					context.lineTo(550, 698);
+					context.stroke();
+
+					context.beginPath();
+					context.moveTo(542, 400);
+					context.lineTo(558, 400);
+					context.stroke();
+
+					context.beginPath();
+					context.moveTo(250, 392);
+					context.lineTo(250, 408);
+					context.stroke();
+					context.beginPath();
+					context.moveTo(242, 400);
+					context.lineTo(258, 400);
+					context.stroke();
+
+					context.beginPath();
+					context.moveTo(850, 392);
+					context.lineTo(850, 408);
+					context.stroke();
+					context.beginPath();
+					context.moveTo(842, 400);
+					context.lineTo(858, 400);
+					context.stroke();
+
+					context.beginPath();
+					context.arc(550, 400, 75, 0, 2 * Math.PI);
+					context.stroke();
+				}
+				drawRobot();
+				drawGoalPoint();
+			}
+
+			function drawRobot()
+			{
+				var canvas = document.getElementById("SoccerFiled");
+				if(canvas.getContext) 
+				{
+					var context = canvas.getContext("2d");
+				}
+				//drawField();
+				for(i = 0; i < Robot_cnt; i++)
+				{
+					if(Robot_flag[i])
+					{
+						context.beginPath();
+						context.lineWidth = 3;
+						switch (i) 
+						{
+							case 0:
+								context.fillStyle = 'blue';
+								context.strokeStyle = 'blue';
+								break;
+							case 1:
+								context.fillStyle = 'chocolate';
+								context.strokeStyle = 'chocolate';
+								break;
+							case 2:
+								context.fillStyle = 'yellow';
+								context.strokeStyle = 'yellow';
+								break;
+							case 3:
+								context.fillStyle = 'black';
+								context.strokeStyle = 'black';
+								break;
+						}
+						context.arc(RobotArray[i][0], RobotArray[i][1], 11, 0, Math.PI * 2);
+						context.stroke();
+						context.beginPath();
+						switch (i) 
+						{
+							case 0:
+								context.strokeStyle = 'blue';
+								break;
+							case 1:
+								context.strokeStyle = 'pink';
+								break;
+							case 2:
+								context.strokeStyle = 'chocolate';
+								break;
+							case 3:
+								context.strokeStyle = 'black';
+								break;
+						}
+						context.lineWidth = 1;
+						console.log(RobotArray[i][0]);
+						console.log(RobotArray[i][1]);
+						console.log(RobotArray[i][2]);
+						context.moveTo(RobotArray[i][0], RobotArray[i][1]);
+						context.lineTo(RobotArray[i][0] + 15 * Math.cos(RobotArray[i][2] * DegtoRad), RobotArray[i][1] - 15 * Math.sin(RobotArray[i][2] * DegtoRad));
+						context.stroke();
+					}
+				}
+			}
+
+			function drawGoalPoint()
+			{
+				var canvas = document.getElementById("SoccerFiled");
+				if (canvas.getContext) 
+				{
+					var context = canvas.getContext("2d");
+				}
+				for (i = 0; i < Robot_cnt; i++) 
+				{
+					if (GoalPoint_flag[i]) 
+					{
+						context.beginPath();
+						context.lineWidth = 3;
+						switch (i) 
+						{
+							case 0:
+								context.fillStyle = 'blue';
+								context.strokeStyle = 'blue';
+								break;
+							case 1:
+								context.fillStyle = 'chocolate';
+								context.strokeStyle = 'chocolate';
+								break;
+							case 2:
+								context.fillStyle = 'yellow';
+								context.strokeStyle = 'yellow';
+								break;
+							case 3:
+								context.fillStyle = 'black';
+								context.strokeStyle = 'black';
+								break;
+						}
+						context.arc(GoalPointArray[i][0], GoalPointArray[i][1], 3, 0, Math.PI * 2);
+						context.stroke();
+					}
+				}
 			}
 
 			function setRobot()
@@ -510,34 +630,36 @@
 				if(!setrobot_flag)
 				{
 					setrobot_flag = true;
-					document.getElementById('setrobot_button').innerHTML = "StopSetRobot";
-					document.getElementById('setgoalpoint_button').disabled = true;
+					document.getElementById('setRobot_button').innerHTML = "StopSetRobot";
+					document.getElementById('setGoalPoint_button').disabled = true;
 				}
 				else
 				{
 					setrobot_flag = false;
-					document.getElementById('setrobot_button').innerHTML = "SetRobot";
-					document.getElementById('setgoalpoint_button').disabled = false;
+					document.getElementById('setRobot_button').innerHTML = "SetRobot";
+					document.getElementById('setGoalPoint_button').disabled = false;
 				}
 			}
+
 			function setGoalPoint()
 			{
 				if (!setgoalpoint_flag) 
 				{
 					setgoalpoint_flag = true;
-					document.getElementById('setgoalpoint_button').innerHTML = "StopSetGoalPoint";
-					document.getElementById('setrobot_button').disabled = true;
+					document.getElementById('setGoalPoint_button').innerHTML = "StopSetGoalPoint";
+					document.getElementById('setRobot_button').disabled = true;
 				}
 				else 
 				{
 					setgoalpoint_flag = false;
-					document.getElementById('setgoalpoint_button').innerHTML = "SetGoalPoint";
-					document.getElementById('setrobot_button').disabled = false;
+					document.getElementById('setGoalPoint_button').innerHTML = "SetGoalPoint";
+					document.getElementById('setRobot_button').disabled = false;
 				}
 			}
-			function IMUrest()
+
+			function IMUReset()
 			{
-				console.log("IMUrest");
+				console.log("IMUReset");
 				IMU_rest.IMUReset = true;
 				IMU_rest_Publisher.publish(IMU_rest);
 			}
@@ -588,16 +710,28 @@
 			</li>
 		</ul>
 		<br />
-		<p id="connected" style="color:#00D600; display:none; font-size: 20px;">
-			Connected
+
+		<p id="addressDisplay1" style="color:#F9F900; display:inline; font-size: 20px;">
+			172.17.121.1
 		</p>
+		<p id="addressDisplay2" style="color:#F9F900; display:none; font-size: 20px;">
+			172.17.121.2
+		</p>
+		<p id="addressDisplay3" style="color:#F9F900; display:none; font-size: 20px;">
+			localhost
+		</p>
+		<p id="connected" style="color:#00D600; display:none; font-size: 20px;">
+			&nbspConnected
+		</p>
+
 		<div id="head" align="center">
 			<h1 align="center" id="header" style="color: white;">SoccerFiled Interface</h1>
 			<!-- <table>
 				<tr>
 					<td>
-						<select style="height:25px; margin-right: 5px;" id="addressSelect">
-							<option value="172.17.121.10">172.17.121.10</option>
+						<select style="height:25px; margin-right: 5px;" id="addressSelect" onchange="changeDisplay()">
+							<option value="172.17.121.1">172.17.121.1</option>
+							<option value="172.17.121.2">172.17.121.2</option>
 							<option value="localhost">localhost</option>
 						</select>
 					</td>
@@ -612,7 +746,7 @@
 				<table>
 					<tr>
 						<td>
-							<button type="button" id="setrobot_button" onclick="setRobot()"
+							<button type="button" id="setRobot_button" onclick="setRobot()"
 								style = "width: 180px; height:60px; margin-bottom: 10%; font-size: 20px;
 								font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
 								SetRobot
@@ -621,7 +755,7 @@
 					</tr>
 					<tr>
 						<td>
-							<button type="button" id="setgoalpoint_button" onclick="setGoalPoint()"
+							<button type="button" id="setGoalPoint_button" onclick="setGoalPoint()"
 								style = "width: 180px; height:60px; margin-bottom: 10%; font-size: 20px;
 								font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
 								SetGoalPoint
@@ -630,10 +764,10 @@
 					</tr>
 					<tr>
 						<td>
-							<button type="button" id="IMUrest_button" onclick="IMUrest()"
+							<button type="button" id="IMUReset_button" onclick="IMUReset()"
 									style = "width: 180px; height:60px; margin-top : 270%; margin-bottom: 10%; font-size: 20px;
 									font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
-								IMUrest
+								IMUReset
 							</button>
 						</td>
 					</tr>
