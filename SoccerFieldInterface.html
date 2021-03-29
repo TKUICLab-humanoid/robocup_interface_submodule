@@ -14,7 +14,7 @@
 		<script language="javascript">
 
 			var ros = new ROSLIB.Ros({
-			url: "ws://172.17.121.10:9090"
+			url: "ws://localhost:9090"
 			});
 			ros.on('connection', function () {
 				console.log('Connection made!');
@@ -593,7 +593,7 @@
 		</p>
 		<div id="head" align="center">
 			<h1 align="center" id="header" style="color: white;">SoccerFiled Interface</h1>
-			<table>
+			<!-- <table>
 				<tr>
 					<td>
 						<select style="height:25px; margin-right: 5px;" id="addressSelect">
@@ -605,7 +605,7 @@
 						<button type="button" style="width:110px ;height:25px;" id="changeAddressButton" onclick="enterAddress()">Enter Address</button>
 					</td>
 				</tr>
-			</table>
+			</table> -->
 		</div>
 		<div id="container" align="center">
 			<section id="buttonarea" align="left" style="float: left;">
