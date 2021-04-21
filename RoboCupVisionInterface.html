@@ -27,7 +27,6 @@
 		});
 		ros.on('close', function () {
 			console.log('Connection to websocket server closed.');
-			B_Measure_Flag = true;
 			disconnectFunction();
 		});
 
@@ -246,7 +245,7 @@
 		var CamWhiteBalanceValue = 0;
 		var CamAuto_WhiteBalanceValue = false;
 		var CamAuto_ExposureValue = false;
-		var CamAuto_BacklightCompensation = false;
+		var CamAuto_BacklightCompensationValue = false;
 
 		function enterAddress() {
 			if(connectFlag)
@@ -257,7 +256,14 @@
 			myAddress = document.getElementById("addressSelect").value;
 			console.log("Connecting address is", myAddress)
 			ros.connect("ws://" + myAddress + ":9090");
-			document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/object_image";
+			if(B_Measure_Flag)
+			{
+				document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/object_image";
+			}
+			else
+			{
+				document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/measure_image";
+			}
 			document.getElementById("monitor_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/monitor_image";
 		}
 
@@ -363,7 +369,8 @@
 			SaveHSVreqrest.Save = true;
 			document.getElementById("SaveColorModel").disabled = "disabled";
 			SaveHSVClient.callService(SaveHSVreqrest, function (SaveHSVresult) {
-				if (SaveHSVresult.Already == true) {
+				if(SaveHSVresult.Already == true)
+				{
 					document.getElementById("SaveColorModel").disabled = false;
 				}
 			});
@@ -373,13 +380,15 @@
 			Buildreqrest.Build = true;
 			document.getElementById("BuildColorModel").disabled = "disabled";
 			BuildClient.callService(Buildreqrest, function (Buildresult) {
-				if (Buildresult.Already == true) {
+				if(Buildresult.Already == true)
+				{
 					document.getElementById("BuildColorModel").disabled = false;
 				}
 			});
 		}
 		function ColorModelForm() {
-			if (B_ColorModelForm_Flag) {
+			if(B_ColorModelForm_Flag)
+			{
 				document.getElementById("HSV_Range").style.display = "inline";
 				document.getElementById("B_ColorModelForm").value = "Close Model Form";
 				document.getElementById("container").style.height = "710px";
@@ -388,13 +397,18 @@
 				B_ColorModelForm_Flag = false;
 				ColorFormcmd.BuildingModel = true;
 				ColorModelForm_Topic.publish(ColorFormcmd);
-			} else {
+			}
+			else
+			{
 				document.getElementById("HSV_Range").style.display = "none";
 				document.getElementById("B_ColorModelForm").value = "Show Model Form";
-				if (B_SetupCamera_Flag == false) {
+				if(B_SetupCamera_Flag == false)
+				{
 					document.getElementById("container").style.height = "810px";
 					document.getElementById("select").style.height = "400px";
-				} else {
+				}
+				else
+				{
 					document.getElementById("container").style.height = "500px";
 					document.getElementById("select").style.height = "180px";
 				}
@@ -404,7 +418,8 @@
 			}
 		}
 		function CameraSetUp() {
-			if (B_SetupCamera_Flag) {
+			if(B_SetupCamera_Flag)
+			{
 				CameraInfoClient.callService(LoadCamerareqrest, function (LoadCameraresult) {
 					CamBrightnessValue = LoadCameraresult.brightness;
 					CamContrastValue = LoadCameraresult.contrast;
@@ -439,12 +454,17 @@
 				document.getElementById("container").style.height = "710px";
 				document.getElementById("select").style.height = "400px";
 				B_SetupCamera_Flag = false;
-			} else {
+			}
+			else
+			{
 				document.getElementById("Camera").style.display = "none";
-				if (B_ColorModelForm_Flag == false) {
+				if(B_ColorModelForm_Flag == false)
+				{
 					document.getElementById("container").style.height = "810px";
 					document.getElementById("select").style.height = "400px";
-				} else {
+				}
+				else
+				{
 					document.getElementById("container").style.height = "500px";
 					document.getElementById("select").style.height = "180px";
 				}
@@ -455,10 +475,12 @@
 		{
 			if(B_Measure_Flag)
 			{
-				document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/measure_image";
+				document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/measure_image";
 				B_Measure_Flag = false;
-			} else {
-				document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/object_image";
+			}
+			else
+			{
+				document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/object_image";
 				B_Measure_Flag = true;
 			}
 		}
@@ -725,9 +747,12 @@
 			Camera.publish(CameraMsg);
 		}
 		function changeAutoWhitBlance() {
-			if (document.getElementById("AutoWhitBlance").checked) {
+			if(document.getElementById("AutoWhitBlance").checked)
+			{
 				CamAuto_WhiteBalanceValue = true;
-			} else {
+			}
+			else
+			{
 				CamAuto_WhiteBalanceValue = false;
 			}
 			CameraMsg.brightness = Number(CamBrightnessValue);
@@ -740,9 +765,12 @@
 			Camera.publish(CameraMsg);
 		}
 		function changeAutoExposure() {
-			if (document.getElementById("AutoExposure").checked) {
+			if(document.getElementById("AutoExposure").checked)
+			{
 				CamAuto_ExposureValue = true;
-			} else {
+			}
+			else
+			{
 				CamAuto_ExposureValue = false;
 			}
 			CameraMsg.brightness = Number(CamBrightnessValue);
@@ -755,9 +783,12 @@
 			Camera.publish(CameraMsg);
 		}
 		function changeAutoBacklightCompensation() {
-			if (document.getElementById("AutoBacklightCompensation").checked) {
+			if(document.getElementById("AutoBacklightCompensation").checked)
+			{
 				CamAuto_BacklightCompensationValue = true;
-			} else {
+			}
+			else
+			{
 				CamAuto_BacklightCompensationValue = false;
 			}
 			CameraMsg.brightness = Number(CamBrightnessValue);
@@ -770,13 +801,16 @@
 			Camera.publish(CameraMsg);
 		}
 		function WebStart() {
-			if (B_Start_Flag) {
+			if(B_Start_Flag)
+			{
 				document.getElementById("B_Start").value = "Finsh";
 				changeColorLabel(document.getElementById("ColorLabel").value);
 				B_Start_Flag = false;
 				WebStartcmd.data = true;
 				WebStart_Topic.publish(WebStartcmd);
-			} else {
+			}
+			else
+			{
 				document.getElementById("B_Start").value = "Start";
 				B_Start_Flag = true;
 				WebStartcmd.data = false;
@@ -785,7 +819,8 @@
 		}
 
 		function showHorizontalPosition(newValue) {
-			if (window.event.keyCode == 13) {
+			if (window.event.keyCode == 13)
+			{
 				if (Number(newValue) < Number(document.getElementById("HorizontalPositionRange").min))
 				{
 					newValue = Number(document.getElementById("HorizontalPositionRange").min);
@@ -811,7 +846,8 @@
 			Head_Topic.publish(HeadPackagecmd);
 		}
 		function showHorizontalSpeed(newValue) {
-			if (window.event.keyCode == 13) {
+			if (window.event.keyCode == 13)
+			{
 				if (Number(newValue) < Number(document.getElementById("HorizontalSpeedRange").min))
 				{
 					newValue = Number(document.getElementById("HorizontalSpeedRange").min);
@@ -838,7 +874,8 @@
 		}
 
 		function showVerticalPosition(newValue) {
-			if (window.event.keyCode == 13) {
+			if (window.event.keyCode == 13)
+			{
 				if (Number(newValue) < Number(document.getElementById("VerticalPositionRange").min))
 				{
 					newValue = Number(document.getElementById("VerticalPositionRange").min);
@@ -864,7 +901,8 @@
 			Head_Topic.publish(HeadPackagecmd);
 		}
 		function showVerticalSpeed(newValue) {
-			if (window.event.keyCode == 13) {
+			if (window.event.keyCode == 13)
+			{
 				if (Number(newValue) < Number(document.getElementById("VerticalSpeedRange").min))
 				{
 					newValue = Number(document.getElementById("VerticalSpeedRange").min);
