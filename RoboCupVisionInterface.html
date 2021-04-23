@@ -351,6 +351,9 @@
 			ros.connect("ws://" + myAddress + ":9090");
 			document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/object_image";
 			document.getElementById("monitor_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/monitor_image";
+			// document.getElementById("mask_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/mask_image";
+			// document.getElementById("imagegamma_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/imagegamma_image";
+			// document.getElementById("merhough_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/merhough_image";
 		}
 
 		function connectFunction() {
@@ -576,14 +579,20 @@
 		
 		function ShowMaskImage()
 		{
+			myAddress = document.getElementById("addressSelect").value;
+
 			if(B_Blur_Flag)
 			{
 				document.getElementById("div_mask_image").style.display = "inline";
+				document.getElementById("mask_image").style.display = "inline";
 				document.getElementById("vision1").style.height = "900px";
+				document.getElementById("mask_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/mask_image";
+
 				B_Blur_Flag = false;
 			}else
 			{
 				document.getElementById("div_mask_image").style.display = "none";
+				document.getElementById("mask_image").style.display = "none";
 				document.getElementById("vision1").style.height = "900px";
 				B_Blur_Flag = true;
 			}
@@ -594,11 +603,15 @@
 			if(B_ImageGamma_Flag)
 			{
 				document.getElementById("div_imagegamma_image").style.display = "inline";
+				document.getElementById("imagegamma_image").style.display = "inline";
 				document.getElementById("vision1").style.height = "900px";
+				document.getElementById("imagegamma_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/Gamma_image";
+
 				B_ImageGamma_Flag = false;
 			}else
 			{
 				document.getElementById("div_imagegamma_image").style.display = "none";
+				document.getElementById("imagegamma_image").style.display = "none";
 				document.getElementById("vision1").style.height = "900px";
 				B_ImageGamma_Flag = true;
 			}
@@ -608,11 +621,15 @@
 			if(B_Merhough_Flag)
 			{
 				document.getElementById("div_merhough_image").style.display = "inline";
+				document.getElementById("merhough_image").style.display = "inline";
 				document.getElementById("vision1").style.height = "900px";
+				document.getElementById("merhough_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/merhough_image";
+
 				B_Merhough_Flag = false;
 			}else
 			{
 				document.getElementById("div_merhough_image").style.display = "none";
+				document.getElementById("merhough_image").style.display = "none";
 				document.getElementById("vision1").style.height = "900px";
 				B_Merhough_Flag = true;
 			}
@@ -621,24 +638,14 @@
 		{
 			if(B_Measure_Flag)
 			{
-				document.getElementById("object_image").src = "http://localhost:8080/stream?topic=/vision/measure_image";
+				document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/measure_image";
 				B_Measure_Flag = false;
 			}
 			else
 			{
-				document.getElementById("object_image").src = "http://localhost:8080/stream?topic=/vision/object_image";
+				document.getElementById("object_image").src = "http://" + myAddress + ":8080/stream?topic=/vision/object_image";
 				B_Measure_Flag = true;
 			}
-			// if(B_Measure_Flag)
-			// {
-			// 	document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/measure_image";
-			// 	B_Measure_Flag = false;
-			// }
-			// else
-			// {
-			// 	document.getElementById("object_image").src = "http://" + myaddress + ":8080/stream?topic=/vision/object_image";
-			// 	B_Measure_Flag = true;
-			// }
 		}
 		function showCamBrightness(newValue) {
 			document.getElementById("CamBrightnessValue").value = newValue;
@@ -1100,6 +1107,10 @@
 					</td>
 				</tr>
 			</table>
+		
+		
+		
+		
 		</div>
 		<div id="container" align="left">
 			<div id="div_object_image">
@@ -1292,11 +1303,21 @@
 	</form>
 	<form>
 		<div id="vision1" align="center">
+			
 			<div>
+				<div id="div_mask_image">
+					<img id="mask_image" style="-webkit-user-select: none; display: none;" src="http://172.17.121.1:8080/stream?topic=/vision/mask_image">
+				</div>
+				<div id="div_imagegamma_image">
+					<img id="imagegamma_image" style="-webkit-user-select: none; display: none;" src="http://172.17.121.1:8080/stream?topic=/vision/Gamma_image">
+				</div>
+				<div id="div_merhough_image">
+					<img id="merhough_image" style="-webkit-user-select: none; display: none;" src="http://172.17.121.1:8080/stream?topic=/vision/merhough_image">
+				</div>
 				<table width="320">
 					<tr>
 						<td>
-							<input style="margin-left: 1px; height:25px;width:93px;padding-left:2px" type="button" class="Button" id="mask_image" value="Blur Image"
+							<input style="margin-left: 1px; height:25px;width:93px;padding-left:2px" type="button" class="Button" id="mask_image" value="Mask Image"
 							onClick="ShowMaskImage()"></input>
 						</td>
 						<td>
@@ -1310,15 +1331,7 @@
 					</tr>
 				</table>
 			</div>
-			<div id="div_mask_image">
-				<img id="mask_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/mask_image">
-			</div>
-			<div id="div_imagegamma_image">
-				<img id="imagegamma_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/Gamma_image">
-			</div>
-			<div id="div_merhough_image">
-				<img id="merhough_image" style="-webkit-user-select: none; display:inline;" src="http://localhost:8080/stream?topic=/vision/merhough_image">
-			</div>
+			
 		</div>					
 	</form>
 </body>
