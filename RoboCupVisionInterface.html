@@ -53,10 +53,10 @@
 			messageType: 'tku_msgs/camera'
 		});
 		var CameraMsg = new ROSLIB.Message({
-			brightness: 0.5,
-			contrast: 0.5,
-			saturation: 0.5,
-			white_balance: 0.5,
+			brightness: 0,
+			contrast: 50,
+			saturation: 50,
+			white_balance: 4000,
 			auto_white_balance: false,
 			auto_exposure: false,
 			auto_white_balance: false
@@ -1264,7 +1264,7 @@
 						<tr>
 							<td width="25"></td>
 							<td><input class="Range" id="CamBrightness" name="CamBrightness" type="range" min="-64" max="64" value="0" oninput="showCamBrightness(this.value)" /></td>
-							<td><input type="text" class="ValueText" id="CamBrightnessValue" size="12" value="50" onchange="rangeCamBrightnessValue(this.value)" /></td>
+							<td><input type="text" class="ValueText" id="CamBrightnessValue" size="12" value="0" onchange="rangeCamBrightnessValue(this.value)" /></td>
 						</tr>
 						<tr>
 							<td colspan="3">
