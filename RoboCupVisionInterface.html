@@ -81,7 +81,13 @@
 			name: '/BGRValue_Topic',
 			messageType: 'tku_msgs/BGRValue'
 		});
-		
+
+		var thresholdValuecmd = new ROSLIB.Message({
+			BValue: 220,
+			GValue: 220,
+			RValue: 150
+		});
+
 		var BGRClient = new ROSLIB.Service({
 			ros: ros,
 			name: '/LoadBGRInfo',
@@ -94,16 +100,10 @@
 			messageType: 'tku_msgs/HoughValue'
 		});
 
-		var HoughClient = new ROSLIB.Topic({
+		var HoughClient = new ROSLIB.Service({
 			ros: ros,
 			name: '/LoadHoughInfo',
 			messageType: 'tku_msgs/HoughInfo'
-		});
-		
-		var thresholdValuecmd = new ROSLIB.Message({
-			BValue: 220,
-			GValue: 220,
-			RValue: 150
 		});
 
 		var HoughValuecmd = new ROSLIB.Message({
@@ -226,8 +226,10 @@
 		var Bluevalue = 0;
 		var Greenvalue = 0;
 		var Redvalue = 0;
-		
-		var hough_threshold = 100;
+
+		var hough_thresholdValue = 0;
+		var hough_minLineLengthValue = 0;
+		var hough_maxLineGapValue = 0;
 
 		var CamBrightnessValue = 0;
 		var CamContrastValue = 0;
@@ -239,86 +241,11 @@
 		var CamAuto_WhiteBalanceValue = false;
 		var CamAuto_BacklightCompensation = false;
 
-		//BGR
-		function showBlueValue(newValue) {
-			document.getElementById("BlueValue").value = newValue;
-			Bluevalue = newValue;
-			thresholdValuecmd.BValue = Number(Bluevalue);
-			BGRValue_Topic.publish(thresholdValuecmd);
-		}
-		function rangeBlueValue(newValue) {
-			document.getElementById("Blue").value = newValue;
-			Bluevalue = newValue;
-			thresholdValuecmd.BValue = Number(Bluevalue);
-			BGRValue_Topic.publish(thresholdValuecmd);
-		}
-		function showGreenValue(newValue) {
-			document.getElementById("GreenValue").value = newValue;
-			Greenvalue = newValue;
-			thresholdValuecmd.GValue = Number(Greenvalue);
-			BGRValue_Topic.publish(thresholdValuecmd);
-		}
-		function rangeGreenValue(newValue) {
-			document.getElementById("Green").value = newValue;
-			Greenvalue = newValue;
-			thresholdValuecmd.GValue = Number(Greenvalue);
-			BGRValue_Topic.publish(thresholdValuecmd);
-		}
-		function showRedValue(newValue) {
-			document.getElementById("RedValue").value = newValue;
-			Redvalue = newValue;
-			thresholdValuecmd.RValue = Number(Redvalue);
-			BGRValue_Topic.publish(thresholdValuecmd);
-		}
-		function rangeRedValue(newValue) {
-			document.getElementById("Red").value = newValue;
-			Redvalue = newValue;
-			thresholdValuecmd.RValue = Number(Redvalue);
-			BGRValue_Topic.publish(thresholdValuecmd);
-		}
-
-		//hough
-		function showthresholdValue(newValue) {
-			document.getElementById("ThresholdValue").value = newValue;
-			hough_threshold = newValue;
-			HoughValuecmd.Hough_threshold = Number(hough_threshold);
-			HoughValue_Topic.publhough_maxLineGapsh(HoughValuecmd);
-		}
-		function rangethresholdValue(newValue) {
-			document.getElementById("Threshold").value = newValue;
-			hough_threshold = newValue;
-			HoughValuecmd.Hough_threshold = Number(hough_threshold);
-			HoughValue_Topic.publish(HoughValuecmd);
-		}
-		function showminLineLength(newValue)
- 		{
-			document.getElementById("MinLineLengthValue").value = newValue;
-			hough_minLineLength = newValue;
-			HoughValuecmd.Hough_minLineLength = Number(hough_minLineLength);
-			HoughValue_Topic.publish(HoughValuecmd);
-		}
-		function rangeminLineLength(newValue) {
-			document.getElementById("MinLineLength").value = newValue;
-			hough_minLineLength = newValue;
-			HoughValuecmd.Hough_minLineLength = Number(hough_minLineLength);
-			HoughValue_Topic.publish(HoughValuecmd);
-		}
-		function showmaxLineGap(newValue) {
-			document.getElementById("MaxLineGapValue").value = newValue;
-			hough_maxLineGap = newValue;
-			HoughValuecmd.Hough_maxLineGap = Number(hough_maxLineGap);
-			HoughValue_Topic.publish(HoughValuecmd);
-		}
-		function rangemaxLineGap(newValue) {
-			document.getElementById("MaxLineGap").value = newValue;
-			hough_maxLineGap = newValue;
-			HoughValuecmd.Hough_maxLineGap = Number(hough_maxLineGap);
-			HoughValue_Topic.publish(HoughValuecmd);
-		}
 				
 		function ShowDebugForm()
 		{
 			if(B_ShowDebugForm_Flag){
+				
 				document.getElementById("Debug_Range").style.display = "inline";
 				if(B_SetupCamera_Flag){
 					document.getElementById("container").style.height = "650px";
@@ -327,6 +254,52 @@
 					document.getElementById("container").style.height = "750px";
 				}
 				B_ShowDebugForm_Flag = false;
+				var LoadHougheqrest = new ROSLIB.ServiceRequest({
+					Load: true
+				});
+
+				HoughClient.callService(LoadHougheqrest, function (LoadHoughresult) {
+					
+					hough_thresholdValue = LoadHoughresult.Hough_threshold;
+					hough_minLineLengthValue = LoadHoughresult.Hough_minLineLength;
+					hough_maxLineGapValue = LoadHoughresult.Hough_maxLineGap;
+					document.getElementById("Threshold").value = hough_thresholdValue;
+					document.getElementById("hough_thresholdValue").value = hough_thresholdValue;
+					document.getElementById("MinLineLength").value = hough_minLineLengthValue;
+					document.getElementById("hough_minLineLengthValue").value = hough_minLineLengthValue;
+
+					document.getElementById("MaxLineGap").value = hough_maxLineGapValue;
+					document.getElementById("hough_maxLineGapValue").value = hough_maxLineGapValue;
+
+					HoughValuecmd.Hough_threshold = Number(hough_thresholdValue);
+					HoughValuecmd.Hough_minLineLength= Number(hough_minLineLengthValue);
+					HoughValuecmd.Hough_maxLineGap = Number(hough_maxLineGapValue);
+					HoughValue_Topic.publish(HoughValuecmd);
+				});
+
+				var LoadBGRreqrest = new ROSLIB.ServiceRequest({
+					Load: true
+				});
+
+				BGRClient.callService(LoadBGRreqrest, function (LoadBGRresult) {
+					Bluevalue = LoadBGRresult.BValue;
+					Greenvalue = LoadBGRresult.GValue;
+					Redvalue = LoadBGRresult.RValue;
+					
+					document.getElementById("Blue").value = Bluevalue;
+					document.getElementById("Bluevalue").value = Bluevalue;
+					document.getElementById("Green").value = Greenvalue;
+					document.getElementById("Greenvalue").value = Greenvalue;
+					document.getElementById("Red").value = Redvalue;
+					document.getElementById("Redvalue").value = Redvalue;
+
+					thresholdValuecmd.BValue = Number(Bluevalue);
+					thresholdValuecmd.GValue = Number(Greenvalue);
+					thresholdValuecmd.RValue = Number(Redvalue);
+					BGRValue_Topic.publish(thresholdValuecmd);
+				});
+				
+				
 			}else
 			{
 				document.getElementById("Debug_Range").style.display = "none";
@@ -339,7 +312,106 @@
 				B_ShowDebugForm_Flag = true;
 			}
 		}
+		//BGR
+		function showBlueValue(newValue) {
+			document.getElementById("Bluevalue").value = newValue;
+			Bluevalue = newValue;
+			thresholdValuecmd.BValue = Number(Bluevalue);
+			thresholdValuecmd.GValue = Number(Greenvalue);
+			thresholdValuecmd.RValue = Number(Redvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function rangeBlueValue(newValue) {
+			document.getElementById("Blue").value = newValue;
+			Bluevalue = newValue;
+			thresholdValuecmd.BValue = Number(Bluevalue);
+			thresholdValuecmd.GValue = Number(Greenvalue);
+			thresholdValuecmd.RValue = Number(Redvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function showGreenValue(newValue) {
+			document.getElementById("Greenvalue").value = newValue;
+			Greenvalue = newValue;
+			thresholdValuecmd.BValue = Number(Bluevalue);
+			thresholdValuecmd.GValue = Number(Greenvalue);
+			thresholdValuecmd.RValue = Number(Redvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function rangeGreenValue(newValue) {
+			document.getElementById("Green").value = newValue;
+			Greenvalue = newValue;
+			thresholdValuecmd.BValue = Number(Bluevalue);
+			thresholdValuecmd.GValue = Number(Greenvalue);
+			thresholdValuecmd.RValue = Number(Redvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function showRedValue(newValue) {
+			document.getElementById("Redvalue").value = newValue;
+			Redvalue = newValue;
+			thresholdValuecmd.BValue = Number(Bluevalue);
+			thresholdValuecmd.GValue = Number(Greenvalue);
+			thresholdValuecmd.RValue = Number(Redvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
+		function rangeRedValue(newValue) {
+			document.getElementById("Red").value = newValue;
+			Redvalue = newValue;
+			thresholdValuecmd.BValue = Number(Bluevalue);
+			thresholdValuecmd.GValue = Number(Greenvalue);
+			thresholdValuecmd.RValue = Number(Redvalue);
+			BGRValue_Topic.publish(thresholdValuecmd);
+		}
 
+		//hough
+		function showthresholdValue(newValue) {
+			document.getElementById("hough_thresholdValue").value = newValue;
+			hough_thresholdValue = newValue;
+			HoughValuecmd.Hough_threshold = Number(hough_thresholdValue);
+			HoughValuecmd.Hough_minLineLength = Number(hough_minLineLengthValue);
+			HoughValuecmd.Hough_maxLineGap = Number(hough_maxLineGapValue);
+			HoughValue_Topic.publish(HoughValuecmd);
+		}
+		function rangethresholdValue(newValue) {
+			document.getElementById("Threshold").value = newValue;
+			hough_thresholdValue = newValue;
+			HoughValuecmd.Hough_threshold = Number(hough_thresholdValue);
+			HoughValuecmd.Hough_minLineLength = Number(hough_minLineLengthValue);
+			HoughValuecmd.Hough_maxLineGap = Number(hough_maxLineGapValue);
+			HoughValue_Topic.publish(HoughValuecmd);
+		}
+		function showminLineLength(newValue)
+ 		{
+			document.getElementById("hough_minLineLengthValue").value = newValue;
+			hough_minLineLengthValue = newValue;
+			HoughValuecmd.Hough_threshold = Number(hough_thresholdValue);
+			HoughValuecmd.Hough_minLineLength = Number(hough_minLineLengthValue);
+			HoughValuecmd.Hough_maxLineGap = Number(hough_maxLineGapValue);			
+			HoughValue_Topic.publish(HoughValuecmd);
+		}
+		function rangeminLineLength(newValue) {
+			document.getElementById("MinLineLength").value = newValue;
+			hough_minLineLengthValue = newValue;
+			HoughValuecmd.Hough_threshold = Number(hough_thresholdValue);
+			HoughValuecmd.Hough_minLineLength = Number(hough_minLineLengthValue);
+			HoughValuecmd.Hough_maxLineGap = Number(hough_maxLineGapValue);			
+			HoughValue_Topic.publish(HoughValuecmd);
+		}
+		function showmaxLineGap(newValue) {
+			document.getElementById("hough_maxLineGapValue").value = newValue;
+			hough_maxLineGapValue = newValue;
+			HoughValuecmd.Hough_threshold = Number(hough_thresholdValue);
+			HoughValuecmd.Hough_minLineLength = Number(hough_minLineLengthValue);
+			HoughValuecmd.Hough_maxLineGap = Number(hough_maxLineGapValue);			
+			HoughValue_Topic.publish(HoughValuecmd);
+		}
+		function rangemaxLineGap(newValue) {
+			document.getElementById("MaxLineGap").value = newValue;
+			hough_maxLineGapValue = newValue;
+			HoughValuecmd.Hough_threshold = Number(hough_thresholdValue);
+			HoughValuecmd.Hough_minLineLength = Number(hough_minLineLengthValue);
+			HoughValuecmd.Hough_maxLineGap = Number(hough_maxLineGapValue);			
+			HoughValue_Topic.publish(HoughValuecmd);
+		}
 		function enterAddress() {
 			if(connectFlag)
 			{
@@ -1129,7 +1201,7 @@
 					<tr>
 						<td width="25"></td>
 						<td><input class="Range" id="Blue" name="Blue" type="range" min="0" max="255" value="220" oninput="showBlueValue(this.value)" /></td>
-						<td><input type="text" class="ValueText" id="BlueValue" size="12" value="220" onchange="rangeBlueValue(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="Bluevalue" size="12" value="220" onchange="rangeBlueValue(this.value)" /></td>
 					</tr>
 					<tr>
 						<td colspan="3">
@@ -1139,7 +1211,7 @@
 					<tr>
 						<td width="25"></td>
 						<td><input class="Range" id="Green" name="Green" type="range" min="0" max="255" value="220" oninput="showGreenValue(this.value)" /></td>
-						<td><input type="text" class="ValueText" id="GreenValue" size="12" value="220" onchange="rangeGreenValue(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="Greenvalue" size="12" value="220" onchange="rangeGreenValue(this.value)" /></td>
 					</tr>
 					<tr>
 						<td colspan="3">
@@ -1149,7 +1221,7 @@
 					<tr>
 						<td width="25"></td>
 						<td><input class="Range" id="Red" name="Red" type="range" min="0" max="255" value="150" oninput="showRedValue(this.value)" /></td>
-						<td><input type="text" class="ValueText" id="RedValue" size="12" value="150" onchange="rangeRedValue(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="Redvalue" size="12" value="150" onchange="rangeRedValue(this.value)" /></td>
 					</tr>
 				</table>
 				<table width="320">
@@ -1161,7 +1233,7 @@
 					<tr>
 						<td width="25"></td>
 						<td><input class="Range" id="Threshold" name="Threshold" type="range" min="0" max="300" value="100" oninput="showthresholdValue(this.value)" /></td>
-						<td><input type="text" class="ValueText" id="ThresholdValue" size="12" value="100" onchange="rangethresholdValue(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="hough_thresholdValue" size="12" value="100" onchange="rangethresholdValue(this.value)" /></td>
 					</tr>
 					<tr>
 						<td colspan="3">
@@ -1171,7 +1243,7 @@
 					<tr>
 						<td width="25"></td>
 						<td><input class="Range" id="MinLineLength" name="MinLineLength" type="range" min="0" max="200" value="60" oninput="showminLineLength(this.value)" /></td>
-						<td><input type="text" class="ValueText" id="MinLineLengthValue" size="12" value="60" onchange="rangesminLineLength(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="hough_minLineLengthValue" size="12" value="60" onchange="rangesminLineLength(this.value)" /></td>
 					</tr>
 					<tr>
 						<td colspan="3">
@@ -1181,7 +1253,7 @@
 					<tr>
 						<td width="25"></td>
 						<td><input class="Range" id="MaxLineGap" name="MaxLineGap" type="range" min="0" max="100" value="40" oninput="showmaxLineGap(this.value)" /></td>
-						<td><input type="text" class="ValueText" id="MaxLineGapValue" size="12" value="40" onchange="rangemaxLineGap(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="hough_maxLineGapValue" size="12" value="40" onchange="rangemaxLineGap(this.value)" /></td>
 					</tr>
 				</table>
 			</div>
