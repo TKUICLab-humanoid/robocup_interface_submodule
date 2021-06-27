@@ -96,8 +96,8 @@
 						switch(keycode)
 						{
 							case 49:	//1, First robot
-								RobotArray[0][0] = tempX;
-								RobotArray[0][1] = tempY;
+								RobotArray[0][0] = Number(tempX);
+								RobotArray[0][1] = Number(tempY);
 								RobotArray[0][2] = Number(prompt("Please enter the robot angle", "0"));
 								while(RobotArray[0][2] == null)
 								{
@@ -112,12 +112,12 @@
 								drawField();
 								break;
 							case 50:	//2, Second robot
-								RobotArray[1][0] = tempX;
-								RobotArray[1][1] = tempY;
-								RobotArray[1][2] = prompt("Please enter the robot angle", "0");
+								RobotArray[1][0] = Number(tempX);
+								RobotArray[1][1] = Number(tempY);
+								RobotArray[1][2] = Number(prompt("Please enter the robot angle", "0"));
 								while (RobotArray[1][2] == null) 
 								{
-									RobotArray[1][2] = prompt("Please enter the robot angle", "0");
+									RobotArray[1][2] = Number(prompt("Please enter the robot angle", "0"));
 								}
 								set_robot_pos.number = 1;
 								set_robot_pos.x = RobotArray[1][0];
@@ -128,12 +128,12 @@
 								drawField();			
 								break;
 							case 51:	//3, Third robot
-								RobotArray[2][0] = tempX;
-								RobotArray[2][1] = tempY;
-								RobotArray[2][2] = prompt("Please enter the robot angle", "0");
+								RobotArray[2][0] = Number(tempX);
+								RobotArray[2][1] = Number(tempY);
+								RobotArray[2][2] = Number(prompt("Please enter the robot angle", "0"));
 								while (RobotArray[2][2] == null)
 								{
-									RobotArray[2][2] = prompt("Please enter the robot angle", "0");
+									RobotArray[2][2] = Number(prompt("Please enter the robot angle", "0"));
 								}
 								set_robot_pos.number = 2;
 								set_robot_pos.x = RobotArray[2][0];
@@ -144,12 +144,12 @@
 								drawField();		
 								break;
 							case 52:	//4, Forth robot
-								RobotArray[3][0] = tempX;
-								RobotArray[3][1] = tempY;
-								RobotArray[3][2] = prompt("Please enter the robot angle", "0");
+								RobotArray[3][0] = Number(tempX);
+								RobotArray[3][1] = Number(tempY);
+								RobotArray[3][2] = Number(prompt("Please enter the robot angle", "0"));
 								while (RobotArray[3][2] == null) 
 								{
-									RobotArray[3][2] = prompt("Please enter the robot angle", "0");
+									RobotArray[3][2] = Number(prompt("Please enter the robot angle", "0"));
 								}
 								set_robot_pos.number = 3;
 								set_robot_pos.x = RobotArray[3][0];
@@ -171,8 +171,8 @@
 						switch (keycode) 
 						{
 							case 49:	//1, First goal
-								GoalPointArray[0][0] = tempX;
-								GoalPointArray[0][1] = tempY;
+								GoalPointArray[0][0] = Number(tempX);
+								GoalPointArray[0][1] = Number(tempY);
 								GoalPoint_flag[0] = true;
 								set_goal_point.number = 0;
 								set_goal_point.x = GoalPointArray[0][0];
@@ -181,8 +181,8 @@
 								drawField();
 								break;
 							case 50:	//2, Second goal
-								GoalPointArray[1][0] = tempX;
-								GoalPointArray[1][1] = tempY;
+								GoalPointArray[1][0] = Number(tempX);
+								GoalPointArray[1][1] = Number(tempY);
 								GoalPoint_flag[1] = true;
 								set_goal_point.number = 1;
 								set_goal_point.x = GoalPointArray[1][0];
@@ -191,8 +191,8 @@
 								drawField();
 								break;
 							case 51:	//3, Third goal
-								GoalPointArray[2][0] = tempX;
-								GoalPointArray[2][1] = tempY;
+								GoalPointArray[2][0] = Number(tempX);
+								GoalPointArray[2][1] = Number(tempY);
 								GoalPoint_flag[2] = true;
 								set_goal_point.number = 2;
 								set_goal_point.x = GoalPointArray[2][0];
@@ -201,8 +201,8 @@
 								drawField();
 								break;
 							case 52:	//4, Forth goal
-								GoalPointArray[3][0] = tempX;
-								GoalPointArray[3][1] = tempY;
+								GoalPointArray[3][0] = Number(tempX);
+								GoalPointArray[3][1] = Number(tempY);
 								GoalPoint_flag[3] = true;
 								set_goal_point.number = 3;
 								set_goal_point.x = GoalPointArray[3][0];
@@ -329,6 +329,7 @@
 
 			//-----
 			var robot_pos_Subscriber = null;
+			var soccer_pos_Subscriber = null;
 
 			var connectFlag = false;
 			var myAddress = "172.17.121.1";
@@ -376,7 +377,7 @@
 				{
 					SoccerArray[0] = msg.x;
 					SoccerArray[1] = msg.y;
-					Soccer_flag = true;
+					Soccer_flag = msg.exist_flag;
 					drawField();
 				});
 			}
