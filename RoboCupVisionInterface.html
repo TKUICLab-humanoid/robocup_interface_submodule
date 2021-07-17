@@ -99,6 +99,12 @@
 			name: '/HoughValue_Topic',
 			messageType: 'tku_msgs/HoughValue'
 		});
+		
+		var HoughValuecmd = new ROSLIB.Message({
+			Hough_threshold: 100,
+			Hough_minLineLength: 60,
+			Hough_maxLineGap: 40
+		});
 
 		var HoughClient = new ROSLIB.Service({
 			ros: ros,
@@ -106,11 +112,7 @@
 			messageType: 'tku_msgs/HoughInfo'
 		});
 
-		var HoughValuecmd = new ROSLIB.Message({
-			Hough_threshold: 100,
-			Hough_minLineLength: 60,
-			Hough_maxLineGap: 40
-		});
+		
 
 		//-----
 		var count = 0;
@@ -254,6 +256,7 @@
 					document.getElementById("container").style.height = "750px";
 				}
 				B_ShowDebugForm_Flag = false;
+
 				var LoadHougheqrest = new ROSLIB.ServiceRequest({
 					Load: true
 				});
@@ -263,11 +266,11 @@
 					hough_thresholdValue = LoadHoughresult.Hough_threshold;
 					hough_minLineLengthValue = LoadHoughresult.Hough_minLineLength;
 					hough_maxLineGapValue = LoadHoughresult.Hough_maxLineGap;
+					
 					document.getElementById("Threshold").value = hough_thresholdValue;
 					document.getElementById("hough_thresholdValue").value = hough_thresholdValue;
 					document.getElementById("MinLineLength").value = hough_minLineLengthValue;
 					document.getElementById("hough_minLineLengthValue").value = hough_minLineLengthValue;
-
 					document.getElementById("MaxLineGap").value = hough_maxLineGapValue;
 					document.getElementById("hough_maxLineGapValue").value = hough_maxLineGapValue;
 
@@ -1243,7 +1246,7 @@
 					<tr>
 						<td width="25"></td>
 						<td><input class="Range" id="MinLineLength" name="MinLineLength" type="range" min="0" max="200" value="60" oninput="showminLineLength(this.value)" /></td>
-						<td><input type="text" class="ValueText" id="hough_minLineLengthValue" size="12" value="60" onchange="rangesminLineLength(this.value)" /></td>
+						<td><input type="text" class="ValueText" id="hough_minLineLengthValue" size="12" value="60" onchange="rangeminLineLength(this.value)" /></td>
 					</tr>
 					<tr>
 						<td colspan="3">
